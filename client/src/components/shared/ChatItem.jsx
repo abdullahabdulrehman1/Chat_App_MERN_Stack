@@ -21,12 +21,17 @@ const ChatItem = ({
     >
       <div
         style={{
+          boxShadow: "0 0 10px rgba(0,0,0,0.2)",
+          // border: "1px solid black" ,
           display: "flex",
           alignItems: "center",
           padding: "0",
           backgroundColor: sameSender ? "black" : "unset",
           color: sameSender ? "white" : "unset",
           position: "relative",
+          borderRadius: "1rem",
+          margin: "0.4rem ",
+          padding: "0.5rem",
         }}
       >
         <AvatarCard avatar={avatar} />

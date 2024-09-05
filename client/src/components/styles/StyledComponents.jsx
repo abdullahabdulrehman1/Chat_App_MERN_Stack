@@ -1,7 +1,7 @@
-import React from "react";
 import { styled } from "@mui/material";
+import React from "react";
 import { Link as LinkComponent } from "react-router-dom";
-import { grayColor, matBlack } from "../constants/color";
+import { grayColor } from "../constants/color";
 const StyledComponents = () => {
   return <div></div>;
 };
@@ -19,11 +19,9 @@ export const VisuallyHiddenInput = styled("input")({
 export const Link = styled(LinkComponent)`
   text-decoration: none;
   color: black;
-  padding:1rem,
-  &:hover {
-    background-color: rgba(0,0,0,0.5);
-  }
-  ;
+
+ 
+  
 
 `;
 export const InputBox = styled("input")`
