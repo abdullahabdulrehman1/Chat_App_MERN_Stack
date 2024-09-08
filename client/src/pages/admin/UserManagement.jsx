@@ -1,8 +1,8 @@
+import { Avatar } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { dashboardData } from "../../components/constants/sampleData";
 import AdminLayout from "../../components/layout/AdminLayout";
 import Table from "../../components/shared/Table";
-import { Avatar } from "@mui/material";
-import { dashboardData } from "../../components/constants/sampleData";
 import { transformImage } from "../../lib/features";
 
 const UserManagement = () => {

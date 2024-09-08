@@ -1,13 +1,12 @@
-import React, { Fragment, useRef } from "react";
-import AppLayout from "../components/layout/AppLayout";
+import { AttachFile as AttachFileIcon, Send as SendIcon } from "@mui/icons-material";
 import { IconButton, Stack } from "@mui/material";
+import React, { Fragment, useRef } from "react";
 import { grayColor, orange } from "../components/constants/color";
-import { AttachFile as AttachFileIcon } from "@mui/icons-material";
-import { Send as SendIcon } from "@mui/icons-material";
-import { InputBox } from "../components/styles/StyledComponents";
-import FileMenu from "../components/dialogs/FileMenu";
 import { sampleMesseges } from "../components/constants/sampleData";
+import FileMenu from "../components/dialogs/FileMenu";
+import AppLayout from "../components/layout/AppLayout";
 import MessegeComponent from "../components/shared/MessegeComponent";
+import { InputBox } from "../components/styles/StyledComponents";
 const Chats = () => {
   const containerRef = useRef(null);
   const user = {

@@ -1,6 +1,3 @@
-import React from "react";
-import AdminLayout from "../../components/layout/AdminLayout";
-import { Box, Container, Paper, Stack, Typography } from "@mui/material";
 import {
   AdminPanelSettings as AdminPanelSettingsIcon,
   Group as GroupIcon,
@@ -8,13 +5,16 @@ import {
   Notifications as NotificationAddIcon,
   Person as PersonIcon,
 } from "@mui/icons-material";
+import { Container, Paper, Stack, Typography } from "@mui/material";
 import moment from "moment";
+import React from "react";
+import { matBlack } from "../../components/constants/color";
+import AdminLayout from "../../components/layout/AdminLayout";
+import { DoughnutChart, LineChart } from "../../components/specific/Charts";
 import {
   CurvedButton,
   SearchField,
 } from "../../components/styles/StyledComponents";
-import { matBlack } from "../../components/constants/color";
-import { DoughnutChart, LineChart } from "../../components/specific/Charts";
 
 const Dashboard = () => {
   const Appbar = (

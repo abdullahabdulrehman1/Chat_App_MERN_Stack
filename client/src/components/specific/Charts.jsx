@@ -11,9 +11,8 @@ import {
 } from "chart.js";
 import React from "react";
 import { Doughnut, Line } from "react-chartjs-2";
-import { purple, purpleLight } from "../constants/color";
 import { getLast7Days } from "../../lib/features";
-import { green, orange } from "@mui/material/colors";
+import { purple, purpleLight } from "../constants/color";
 
 ChartJS.register(
   CategoryScale,

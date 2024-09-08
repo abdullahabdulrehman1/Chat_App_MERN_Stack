@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import AdminLayout from "../../components/layout/AdminLayout";
-import Table from "../../components/shared/Table";
 import { Avatar, Stack } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { dashboardData } from "../../components/constants/sampleData";
-import { transformImage } from "../../lib/features";
+import AdminLayout from "../../components/layout/AdminLayout";
 import AvatarCard from "../../components/shared/AvatarCard";
+import Table from "../../components/shared/Table";
+import { transformImage } from "../../lib/features";
 
 const ChatManagement = () => {
   const columns = [

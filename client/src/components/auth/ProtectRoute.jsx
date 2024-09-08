@@ -5,7 +5,7 @@ const ProtectRoute = ({children,user,redirect="/login"}) => {
 if(!user){
     return <Navigate to={redirect} replace />
 }
-else {
+else {  
     return children ? children : <Outlet/>
 }
 }
