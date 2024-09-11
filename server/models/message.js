@@ -1,4 +1,5 @@
 import mongoose,{ Schema, model } from "mongoose";
+const { Types } = mongoose;
 
 const schema = new Schema(
   {

@@ -28,4 +28,5 @@ export const sendToken = (res, code, user, message) => {
 export const emitEvent = (req, event, users, data) => {
   const io = req.app.get("Emitting Even");
 };
+export const deleteFilesFromCloudinary = async()=>{}
 export default connectDB;
