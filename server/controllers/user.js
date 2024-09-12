@@ -8,8 +8,10 @@ import { ErrorHandler } from "../utils/utility.js";
 import { User } from "./../models/user.js";
 import { compare } from "bcrypt";
 import { getOtherMembers } from "../libs/helper.js";
-export const newUser = async (req, res, next) => {
+export const newUser = TryCatch(async (req, res, next) => {
   const { name, username, password, bio } = req.body;
+  const file = req.file;
+  if (file) return next(new ErrorHandler("Please upload an image", 400));
   const avatar = {
     public_id: "req.file.public_id",
     url: "jsdlkf",
@@ -22,7 +24,7 @@ export const newUser = async (req, res, next) => {
     avatar: avatar,
   });
   sendToken(res, user, 201, "User created successfully");
-};
+});
 export const login = TryCatch(async (req, res, next) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username }).select("+password");
@@ -200,7 +202,7 @@ export const getAllFriends = TryCatch(async (req, res) => {
     }
 
     const availableFriends = allFriends.filter(
-      (friend) =>!chat.members.includes(friend._id)
+      (friend) => !chat.members.includes(friend._id)
     );
 
     return res.status(200).json({

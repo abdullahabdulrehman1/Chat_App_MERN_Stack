@@ -15,7 +15,6 @@ export const registerValidator = () => [
   body("username").notEmpty().withMessage("Username is required"),
   body("password").notEmpty().withMessage("Password is required"),
   body("bio").notEmpty().withMessage("Bio is required"),
-  check("avatar").notEmpty().withMessage("Avatar is required"),
 ];
 export const loginValidator = () => [
   body("username").notEmpty().withMessage("Username is required"),
@@ -51,11 +50,6 @@ export const leaveGroupValidator = () => [
 
 export const sendAttachmentsValidator = () => [
   body("chatId").notEmpty().withMessage("ChatId is required"),
-  check("files")
-    .notEmpty()
-    .withMessage("Attachments are required")
-    .isArray({ min: 1, max: 5 })
-    .withMessage("Attachment must be at least 1 and at most 5"),
 ];
 export const getMessagesValidator = () => [
   param("id").notEmpty().withMessage("ChatId is required"),
@@ -84,4 +78,7 @@ export const acceptRequestValidator = () => [
     .withMessage("Please Add Accept")
     .isBoolean()
     .withMessage("Accept must be boolean"),
+];
+export const adminLoginValidator = () => [
+  body("secretKey").notEmpty().withMessage("Secret key is required"),
 ];

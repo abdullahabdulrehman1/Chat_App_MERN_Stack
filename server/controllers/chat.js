@@ -226,6 +226,16 @@ export const LeaveGroup = TryCatch(async (req, res, next) => {
 
 export const sendAttachments = TryCatch(async (req, res, next) => {
   const { chatId } = req.body;
+  const files = req.files || [];
+  if (files.length < 1) {
+    return next(new ErrorHandler("Please select at least one file", 400));
+  }
+  if (files.length > 5) {
+    return next(
+      new ErrorHandler("You can only select a maximum of 5 files", 400)
+    );
+  }
+
   const [chat, me] = await Promise.all([
     Chat.findById(chatId),
     User.findById(req.user, "name"),
@@ -236,7 +246,6 @@ export const sendAttachments = TryCatch(async (req, res, next) => {
   if (!chat.members.includes(req.user)) {
     return next(new ErrorHandler("You are not a member of this chat", 400));
   }
-  const files = req.files || [];
   if (files.length < 1) {
     return next(new ErrorHandler("Please select at least one file", 400));
   }
@@ -348,7 +357,7 @@ export const deleteChat = TryCatch(async (req, res, next) => {
 });
 export const getMessage = TryCatch(async (req, res, next) => {
   const chatId = req.params.id;
-  const { page =1 } = req.query;
+  const { page = 1 } = req.query;
   const limit = 20;
   const skip = (page - 1) * limit;
   const [messages, totalMessagesCount] = await Promise.all([
@@ -360,7 +369,7 @@ export const getMessage = TryCatch(async (req, res, next) => {
       .lean(),
     Message.countDocuments({ chat: chatId }),
   ]);
-  const totalPages = Math.ceil(totalMessagesCount / limit||0);
+  const totalPages = Math.ceil(totalMessagesCount / limit || 0);
   return res.status(200).json({
     success: true,
     message: messages.reverse(),

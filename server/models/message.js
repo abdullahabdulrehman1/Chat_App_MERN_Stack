@@ -7,12 +7,12 @@ const schema = new Schema(
       type: String,
     },
     sender: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     chat: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Chat",
       required: true,
     },

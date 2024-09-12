@@ -11,3 +11,15 @@ export const isAuthenticated = async (req, res, next) => {
 
   next();
 };
+export const isAdminAuthenticated = async (req, res, next) => {
+  const token = req.cookies["chatAppSocketAdminToken"];
+  if (!token) {
+    return next(new ErrorHandler("Only Admin to access this route", 401));
+  }
+  const secretKey = jwt.verify(token, process.env.JWT_SECRET);
+  if (secretKey !== process.env.ADMIN_SECRET_KEY) {
+    return next(new ErrorHandler("Only Admin to access this route", 401));
+  }
+
+  next();
+};
