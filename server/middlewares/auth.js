@@ -9,7 +9,7 @@ export const isAuthenticated = async (req, res, next) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
   req.user = decoded.id;
 
-  next();
+  return next();
 };
 export const isAdminAuthenticated = async (req, res, next) => {
   const token = req.cookies["chatAppSocketAdminToken"];

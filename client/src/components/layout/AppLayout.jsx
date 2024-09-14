@@ -1,22 +1,66 @@
+import { Drawer, Grid, IconButton, Skeleton, Tooltip } from "@mui/material";
 import React from "react";
-import Header from "./Header";
-import Title from "../shared/Title";
-import { Grid } from "@mui/material";
-import Chatlist from "../specific/Chatlist";
-import ChatList from "../specific/Chatlist";
-import { sampleChats } from "../constants/sampleData";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useErrors } from "../../hooks/hooks";
+import { useMyChatsQuery } from "../../redux/api/api";
+import { setIsMobileMenu } from "../../redux/reducer/misc";
+import Title from "../shared/Title";
+import ChatList from "../specific/Chatlist";
 import Profile from "../specific/Profile";
+import Header from "./Header";
+import { CropSquareSharp, KeyboardBackspace } from "@mui/icons-material";
+import { matBlack } from "../constants/color";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
     const params = useParams();
+    const dispatch = useDispatch();
     const chatId = params.chatId;
+    const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
+
+    const { isMobileMenu } = useSelector((state) => state.misc);
+    useErrors([{ isError, error }]);
+    const handleMobileClose = () => dispatch(setIsMobileMenu(false));
     const handleDeleteChat = (e, _id, groupChat) => {};
+
     return (
       <>
         <Title />
         <Header />
+        {isLoading ? (
+          <Skeleton />
+        ) : (
+          <Drawer open={isMobileMenu} onClose={handleMobileClose}>
+            <Tooltip title="back">
+              <IconButton
+                size="small"
+                sx={{
+                  position: "absolute",
+                  top: "1rem",
+                  left: "1rem",
+                  bgcolor: matBlack,
+                  color: "white",
+                  ":hover": {
+                    bgcolor: "rgba(0,0,0,0.7)",
+                  },
+                }}
+                onClick={handleMobileClose}
+              >
+                <KeyboardBackspace />
+              </IconButton>
+            </Tooltip>
+            <div style={{ marginTop: "2.5rem" }}>
+              <ChatList
+                w={"70vw"}
+                chats={data?.chats}
+                newMessegesAlert={[{ chatId, count: 5 }]}
+                onlineUsers={["1", "2"]}
+                chatId={chatId}
+              />
+            </div>
+          </Drawer>
+        )}
         <Grid
           container
           direction="row"
@@ -33,12 +77,16 @@ const AppLayout = () => (WrappedComponent) => {
               display: { xs: "none", sm: "block" },
             }}
           >
-            <ChatList
-              chats={sampleChats}
-              newMessegesAlert={[{ chatId, count: 5 }]}
-              onlineUsers={["1", "2"]}
-              chatId={chatId}
-            />
+            {isLoading ? (
+              <Skeleton />
+            ) : (
+              <ChatList
+                chats={data?.chats}
+                newMessegesAlert={[{ chatId, count: 5 }]}
+                onlineUsers={["1", "2"]}
+                chatId={chatId}
+              />
+            )}
           </Grid>
           <Grid
             item

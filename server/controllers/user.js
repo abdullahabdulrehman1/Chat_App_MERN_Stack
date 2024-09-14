@@ -8,13 +8,16 @@ import { ErrorHandler } from "../utils/utility.js";
 import { User } from "./../models/user.js";
 import { compare } from "bcrypt";
 import { getOtherMembers } from "../libs/helper.js";
+import { uploadFilesToCloudinary } from "./../utils/features.js";
 export const newUser = TryCatch(async (req, res, next) => {
   const { name, username, password, bio } = req.body;
   const file = req.file;
   if (file) return next(new ErrorHandler("Please upload an image", 400));
+  const result = await cloudinary.uploader.upload([file]);
+
   const avatar = {
-    public_id: "req.file.public_id",
-    url: "jsdlkf",
+    public_id: result[0].public_id,
+    url: result[0].secureUrl,
   };
   const user = await User.create({
     name,

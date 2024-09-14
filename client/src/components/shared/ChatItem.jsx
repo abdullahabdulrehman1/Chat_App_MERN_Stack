@@ -13,6 +13,7 @@ const ChatItem = ({
   newMessegeAlert,
   index = 0,
   handleDeleteChatOpen,
+  
 }) => {
   return (
     <Link

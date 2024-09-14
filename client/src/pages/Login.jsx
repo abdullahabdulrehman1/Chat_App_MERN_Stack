@@ -1,40 +1,87 @@
+import { useFileHandler, useInputValidation, useStrongPassword } from "6pp";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import {
   Avatar,
   Button,
   Container,
-  Stack,
   IconButton,
   Paper,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
+import axios from "axios";
 import React, { useState } from "react";
-import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import { useFileHandler, useInputValidation, useStrongPassword } from "6pp";
-import { VisuallyHiddenInput } from "../components/styles/StyledComponents";
-import { usernameValidation } from "../utils/validators";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
 import { bgGradiant } from "../components/constants/color";
+import { server } from "../components/constants/config";
+import { VisuallyHiddenInput } from "../components/styles/StyledComponents";
+import { userExist } from "../redux/reducer/auth,js";
+import { usernameValidation } from "../utils/validators";
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const toggleLogin = () => setIsLogin((prev) => !prev);
   const name = useInputValidation("", usernameValidation);
   const password = useStrongPassword();
+  const username = useInputValidation("", usernameValidation);
   const email = useInputValidation("");
   const avatar = useFileHandler("single");
-  const handleLogin = (e) => {
+  const dispatch = useDispatch();
+  const handleLogin = async (e) => {
     e.preventDefault();
     console.log("login", email.value, password.value);
+    const config = {
+      withCredentials: true,
+      header: {
+        "Content-Type": "application/json",
+      },
+    };
+    try {
+      const data = await axios.post(
+        `${server}/api/v1/users/login`,
+        { username: username.value, password: password.value },
+        config
+      );
+      dispatch(userExist(true));
+      toast.success(data.message);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Something went wrong");
+    }
   };
   const handleSignUp = (e) => {
     e.preventDefault();
-    console.log("signup", email.value, password.value, name.value, avatar.file);
+    const formData = new FormData();
+    formData.append("name", name.value);
+    formData.append("username", username.value);
+    formData.append("email", email.value);
+    formData.append("password", password.value);
+    formData.append("avatar", avatar.file);
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    };
+    try {
+      const { data } = axios
+        .post(`${server}/api/v1/users/new`, formData)
+        .then((res) => {
+          console.log(res);
+          toast.success(res.data.message);
+          toggleLogin();
+        }, config);
+      dispatch(userExist(true));
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Something went wrong");
+    }
   };
 
   return (
     <div
       style={{
-        backgroundImage:bgGradiant
-           }}
+        backgroundImage: bgGradiant,
+      }}
     >
       {" "}
       <Container
@@ -70,11 +117,11 @@ const Login = () => {
                 <TextField
                   required
                   fullWidth
-                  label="email"
+                  label="Useranme"
                   margin="normal"
                   variant="outlined"
-                  value={email.value}
-                  onChange={email.changeHandler}
+                  value={username.value}
+                  onChange={username.changeHandler}
                 />
                 <TextField
                   required
@@ -176,19 +223,28 @@ const Login = () => {
                 <TextField
                   // required
                   fullWidth
-                  label="username"
+                  label="Name"
                   margin="normal"
                   variant="outlined"
                   value={name.value}
                   onChange={name.changeHandler}
                 />
-                {name.error && (
+                <TextField
+                  // required
+                  fullWidth
+                  label="Username"
+                  margin="normal"
+                  variant="outlined"
+                  value={username.value}
+                  onChange={username.changeHandler}
+                />
+                {username.error && (
                   <Typography
                     variant="caption"
                     textAlign={"justify"}
                     color="error"
                   >
-                    {name.error}
+                    {username.error}
                   </Typography>
                 )}
                 <TextField

@@ -12,6 +12,8 @@ import chatRoute from "./routes/chat.js";
 import userRoute from "./routes/user.js";
 import connectDB from "./utils/features.js";
 import { Message } from "./models/message.js";
+import { v2 as cloudinary } from "cloudinary";
+import cors from "cors";
 dotenv.config();
 export const userSocketIds = new Map();
 const app = express();
@@ -19,16 +21,32 @@ const server = createServer(app);
 const io = new Server(server, {});
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:4173",
+      process.env.CLIENT_URL,
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 connectDB(MONGO_URI);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
-app.use("/users", userRoute);
-app.use("/chats", chatRoute);
-app.use("/admin", adminRoute);
+app.use("/api/v1/users", userRoute);
+app.use("/api/v1/chats", chatRoute);
+app.use("/api/v1/admin", adminRoute);
 io.use((socket, next) => {});
 io.on("connection", (socket) => {
   const user = {

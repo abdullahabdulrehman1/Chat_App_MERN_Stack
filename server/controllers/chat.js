@@ -35,29 +35,41 @@ export const newGroupChat = TryCatch(async (req, res, next) => {
     chat,
   });
 });
-export const getMyChats = TryCatch(async (req, res) => {
-  const chats = await Chat.find({ members: req.user }).populate(
+export const getMyChats = TryCatch(async (req, res, next) => {
+  const userId = req.user;
+
+  const chats = await Chat.find({ members: userId }).populate(
     "members",
     "name avatar"
   );
-  const transformedChats = chats.map((chat) => {
-    const otherMembers = getOtherMembers(chat.members, req.user);
-    return {
-      _id: chat._id,
-      name: chat.groupChat ? chat.name : otherMembers.name,
-      groupChat: chat.groupChat,
-      avatar: chat.groupChat
-        ? chat.members.slice(0, 3).map(({ avatar }) => avatar.url)
-        : [otherMembers.avatar.url],
-      members: chat.members.reduce((acc, member) => {
-        acc.push(member._id);
-        return acc;
-      }, []),
-    };
-  });
+
+  const transformedChats = chats
+    .map((chat) => {
+      const otherMembers = getOtherMembers(chat.members, req.user);
+
+      if (!otherMembers) {
+        console.error("otherMembers is undefined for chat:", chat);
+        return null;
+      }
+
+      return {
+        _id: chat._id,
+        name: chat.groupChat ? chat.name : otherMembers.name,
+        groupChat: chat.groupChat,
+        avatar: chat.groupChat
+          ? chat.members.slice(0, 3).map(({ avatar }) => avatar.url)
+          : [otherMembers.avatar.url],
+        members: chat.members.reduce((acc, member) => {
+          acc.push(member._id);
+          return acc;
+        }, []),
+      };
+    })
+    .filter((chat) => chat !== null); // Filter out any null values
+
   res.status(200).json({
     success: true,
-    transformedChats,
+    chats: transformedChats,
   });
 });
 export const getMyGroups = TryCatch(async (req, res) => {

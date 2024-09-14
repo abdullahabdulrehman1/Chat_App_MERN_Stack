@@ -289,7 +289,7 @@ const Groups = () => {
         onClose={handleMobileClose}
       >
         {/* Group LIST */}
-        <GroupsList w={"50vw"} myGroups={sampleChats} chatId={chatId} />
+        <GroupsList w={"70vw"} myGroups={sampleChats} chatId={chatId} />
       </Drawer>
     </Grid>
   );
