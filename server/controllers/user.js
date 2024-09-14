@@ -68,8 +68,9 @@ export const searchUser = TryCatch(async (req, res, next) => {
     .flatMap((chat) => chat.members)
     .filter((member) => member != req.user);
   const name = req.query.name || "";
+  // console.log(req.query.name)
   const allUsersExceptMeAndFriends = await User.find({
-    _id: { $nin: allUser },
+    // _id: { $nin: [., req.user] }, // to see which users are not your friend
     name: { $regex: name, $options: "i" },
   });
   const users = allUsersExceptMeAndFriends.map(({ _id, name, avatar }) => ({
@@ -80,7 +81,7 @@ export const searchUser = TryCatch(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: users,
+    users: users,
   });
 });
 

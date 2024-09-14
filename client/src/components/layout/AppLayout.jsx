@@ -1,3 +1,4 @@
+import { KeyboardBackspace } from "@mui/icons-material";
 import { Drawer, Grid, IconButton, Skeleton, Tooltip } from "@mui/material";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -5,12 +6,11 @@ import { useParams } from "react-router-dom";
 import { useErrors } from "../../hooks/hooks";
 import { useMyChatsQuery } from "../../redux/api/api";
 import { setIsMobileMenu } from "../../redux/reducer/misc";
+import { matBlack } from "../constants/color";
 import Title from "../shared/Title";
 import ChatList from "../specific/Chatlist";
 import Profile from "../specific/Profile";
 import Header from "./Header";
-import { CropSquareSharp, KeyboardBackspace } from "@mui/icons-material";
-import { matBlack } from "../constants/color";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {

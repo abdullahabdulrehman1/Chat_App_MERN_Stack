@@ -1,26 +1,48 @@
+import { useInputValidation } from "6pp";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Dialog,
   DialogTitle,
   InputAdornment,
   List,
-  ListItem,
-  ListItemText,
   Stack,
   TextField,
 } from "@mui/material";
-import React, { useState } from "react";
-import { useInputValidation } from "6pp";
-import SearchIcon from "@mui/icons-material/Search";
-import UserItem from "../shared/UserItem";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  useLazySearchUserQuery,
+  useSendFriendRequestMutation,
+} from "../../redux/api/api";
+import { setIsSearch } from "../../redux/reducer/misc";
 import { sampleUsers } from "../constants/sampleData";
+import UserItem from "../shared/UserItem";
+import toast from "react-hot-toast";
+import { useAsyncMutation } from "../../hooks/hooks";
 
 const Search = () => {
+  const dispatch = useDispatch();
+  const { isSearch } = useSelector((state) => state.misc);
+  const [searchUser] = useLazySearchUserQuery();
+  const [sendFriendRequest, isLoadingSendFriendRequest] = useAsyncMutation(
+    useSendFriendRequestMutation
+  );
   const search = useInputValidation("");
-  let isLoadingSendFriendRequest = false;
-  const [users, setUsers] = useState(sampleUsers);
-  const addFriendHandler =(_id) =>{console.log(_id)} 
+  const [users, setUsers] = useState([]);
+  const addFriendHandler = async (_id) => {
+    await sendFriendRequest("Sending Friend Request", { userId: _id });
+  };
+  const searchCloseHandler = () => dispatch(setIsSearch(false));
+  useEffect(() => {
+    const timeOutId = setTimeout(() => {
+      searchUser(search.value)
+        .then(({ data }) => setUsers(data.users))
+        .catch((e) => {});
+    }, 800);
+    return () => clearTimeout(timeOutId);
+  }, [search.value]);
   return (
-    <Dialog open>
+    <Dialog open={isSearch} onClose={searchCloseHandler}>
       <Stack p={"2rem"} direction={"column"} width={"25rem"}>
         <DialogTitle textAlign={"center"}>Find People</DialogTitle>
         <TextField
@@ -37,14 +59,16 @@ const Search = () => {
             ),
           }}
         />
-<List>
-  {
-    users.map((user) => (
-     <UserItem user={user}  key={user._id} handler={addFriendHandler} handlerIsLoading={isLoadingSendFriendRequest}/>
-    )
-    )
-  }
-</List>
+        <List>
+          {users?.map((user) => (
+            <UserItem
+              user={user}
+              key={user._id}
+              handler={addFriendHandler}
+              handlerIsLoading={isLoadingSendFriendRequest}
+            />
+          ))}
+        </List>
       </Stack>
     </Dialog>
   );

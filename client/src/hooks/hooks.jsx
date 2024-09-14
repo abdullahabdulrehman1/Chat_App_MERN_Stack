@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export const useErrors = (errors = []) => {
@@ -13,4 +13,33 @@ export const useErrors = (errors = []) => {
       }
     });
   }, [errors]);
+};
+
+export const useAsyncMutation = (mutationHook) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState(null);
+  const [mutate] = mutationHook();
+  const executeMutation = async (toastMessage, ...args) => {
+    setIsLoading(true);
+    const toastId = toast.loading(toastMessage || "Loading...");
+    try {
+      const res = await mutate(...args);
+
+      if (res.data) {
+        toast.success(res.data.message || "Updated data successful")
+        
+        setData(res.data);
+      } else {
+        toast.error(res?.error?.data?.error || "Something went wrong", );
+        // console.log(res.error.data.error);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong", );
+    } finally {
+      setIsLoading(false);
+      toast.dismiss(toastId);
+    }
+  };
+  return [ executeMutation, isLoading, data ];
 };
