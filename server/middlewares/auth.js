@@ -1,3 +1,4 @@
+import { User } from "../models/user.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { TryCatch } from "./error.js";
 import jwt from "jsonwebtoken";
@@ -22,4 +23,23 @@ export const isAdminAuthenticated = async (req, res, next) => {
   }
 
   next();
+};
+export const socketAuthenticator = async (err, socket, next) => {
+  try {
+    if (err) return next(err);
+    const authtoken = socket.request.cookies["chatAppSocket"];
+    if (!authtoken) {
+      return next(new ErrorHandler("Please login to access this route", 401));
+    }
+    const decoded = jwt.verify(authtoken, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return next(new ErrorHandler("Please login to access this route", 401));
+    }
+    socket.user = user;
+    return next();
+  } catch (error) {
+    console.log(error);
+    return next(new ErrorHandler("Please login to access this route", 401));
+  }
 };

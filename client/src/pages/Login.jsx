@@ -25,12 +25,12 @@ const Login = () => {
   const name = useInputValidation("", usernameValidation);
   const password = useStrongPassword();
   const username = useInputValidation("", usernameValidation);
-  const email = useInputValidation("");
+  const bio = useInputValidation("");
   const avatar = useFileHandler("single");
   const dispatch = useDispatch();
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("login", email.value, password.value);
+    console.log("login", username.value, password.value);
     const config = {
       withCredentials: true,
       header: {
@@ -53,10 +53,10 @@ const Login = () => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("name", name.value);
-    formData.append("username", username.value);
-    formData.append("email", email.value);
-    formData.append("password", password.value);
     formData.append("avatar", avatar.file);
+    formData.append("username", username.value);
+    formData.append("bio", bio.value);
+    formData.append("password", password.value);
     const config = {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -65,7 +65,7 @@ const Login = () => {
     };
     try {
       const { data } = axios
-        .post(`${server}/api/v1/users/new`, formData)
+        .post(`${server}/api/v1/users/newUser`, formData)
         .then((res) => {
           console.log(res);
           toast.success(res.data.message);
@@ -73,6 +73,7 @@ const Login = () => {
         }, config);
       dispatch(userExist(true));
     } catch (err) {
+      console.log(err)
       toast.error(err?.response?.data?.message || "Something went wrong");
     }
   };
@@ -214,11 +215,11 @@ const Login = () => {
                 <TextField
                   required
                   fullWidth
-                  label="email"
+                  label="Bio"
                   margin="normal"
                   variant="outlined"
-                  value={email.value}
-                  onChange={email.changeHandler}
+                  value={bio.value}
+                  onChange={bio.changeHandler}
                 />
                 <TextField
                   // required

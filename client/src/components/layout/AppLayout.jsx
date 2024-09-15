@@ -11,6 +11,7 @@ import Title from "../shared/Title";
 import ChatList from "../specific/Chatlist";
 import Profile from "../specific/Profile";
 import Header from "./Header";
+import { getSocket } from "../../../socket";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -20,10 +21,12 @@ const AppLayout = () => (WrappedComponent) => {
     const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
 
     const { isMobileMenu } = useSelector((state) => state.misc);
+    const { user } = useSelector((state) => state.auth);
     useErrors([{ isError, error }]);
     const handleMobileClose = () => dispatch(setIsMobileMenu(false));
     const handleDeleteChat = (e, _id, groupChat) => {};
-
+    const socket = getSocket();
+    console.log(socket.id);
     return (
       <>
         <Title />
@@ -85,6 +88,7 @@ const AppLayout = () => (WrappedComponent) => {
                 newMessegesAlert={[{ chatId, count: 5 }]}
                 onlineUsers={["1", "2"]}
                 chatId={chatId}
+               
               />
             )}
           </Grid>
@@ -98,7 +102,7 @@ const AppLayout = () => (WrappedComponent) => {
             }}
             height={"100%"}
           >
-            <WrappedComponent {...props} />{" "}
+            <WrappedComponent  user = {user} chatId={chatId} {...props} />{" "}
           </Grid>
           <Grid
             item
@@ -112,7 +116,7 @@ const AppLayout = () => (WrappedComponent) => {
             }}
             height={"100%"}
           >
-            <Profile />
+            <Profile user={user} />
           </Grid>
         </Grid>
       </>

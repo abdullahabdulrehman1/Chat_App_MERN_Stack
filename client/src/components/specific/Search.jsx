@@ -10,15 +10,13 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useAsyncMutation } from "../../hooks/hooks";
 import {
   useLazySearchUserQuery,
   useSendFriendRequestMutation,
 } from "../../redux/api/api";
 import { setIsSearch } from "../../redux/reducer/misc";
-import { sampleUsers } from "../constants/sampleData";
 import UserItem from "../shared/UserItem";
-import toast from "react-hot-toast";
-import { useAsyncMutation } from "../../hooks/hooks";
 
 const Search = () => {
   const dispatch = useDispatch();

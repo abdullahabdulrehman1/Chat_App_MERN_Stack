@@ -1,23 +1,39 @@
-import { promise } from "bcrypt/promises.js";
+import { compare } from "bcrypt";
+import { v2 as cloudinary } from "cloudinary";
 import { NEW_REQUEST, REFETCH_CHAT } from "../constants/event.js";
 import { TryCatch } from "../middlewares/error.js";
 import { Chat } from "../models/chat.js";
 import { Request } from "../models/request.js";
-import { cookieOption, emitEvent, sendToken } from "../utils/features.js";
+import {
+  cookieOption,
+  emitEvent,
+  sendToken,
+  uploadFilesToCloudinary,
+} from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { User } from "./../models/user.js";
-import { compare } from "bcrypt";
-import { getOtherMembers } from "../libs/helper.js";
-import { uploadFilesToCloudinary } from "./../utils/features.js";
 export const newUser = TryCatch(async (req, res, next) => {
   const { name, username, password, bio } = req.body;
   const file = req.file;
-  if (file) return next(new ErrorHandler("Please upload an image", 400));
-  const result = await cloudinary.uploader.upload([file]);
 
+  if (!file) return next(new ErrorHandler("Please upload an image", 400));
+  const uploadToCloudinary = (fileBuffer) => {
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { resource_type: "image" },
+        (error, result) => {
+          if (error) reject(new ErrorHandler("Image upload failed", 500));
+          resolve(result);
+        }
+      );
+      stream.end(fileBuffer);
+    });
+  };
+
+  const result = await uploadToCloudinary(file.buffer);
   const avatar = {
-    public_id: result[0].public_id,
-    url: result[0].secureUrl,
+    public_id: result.public_id,
+    url: result.secure_url,
   };
   const user = await User.create({
     name,
@@ -26,7 +42,7 @@ export const newUser = TryCatch(async (req, res, next) => {
     bio,
     avatar: avatar,
   });
-  sendToken(res, user, 201, "User created successfully");
+  sendToken(res, 201, user, "User created successfully");
 });
 export const login = TryCatch(async (req, res, next) => {
   const { username, password } = req.body;

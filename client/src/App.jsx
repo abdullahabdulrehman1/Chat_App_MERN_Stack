@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { userNotExist } from "./redux/reducer/auth,js";
 import { Toaster } from "react-hot-toast";
 import { userExist } from "./redux/reducer/auth,js";
+import { SocketProvider } from "../socket";
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Chats = lazy(() => import("./pages/Chats"));
@@ -40,7 +41,13 @@ const App = () => {
     <BrowserRouter>
       <Suspense fallback={<LayoutLoaders />}>
         <Routes>
-          <Route element={<ProtectRoute user={user} />}>
+          <Route
+            element={
+              <SocketProvider>
+                <ProtectRoute user={user} />
+              </SocketProvider>
+            }
+          >
             <Route path="/" element={<Home />} />
             <Route path="/chat/:chatId" element={<Chats />} />
             <Route path="/groups" element={<Groups />} />

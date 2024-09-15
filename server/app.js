@@ -14,23 +14,16 @@ import connectDB from "./utils/features.js";
 import { Message } from "./models/message.js";
 import { v2 as cloudinary } from "cloudinary";
 import cors from "cors";
+import { corsOptions } from "./constants/config.js";
+import { socketAuthenticator } from "./middlewares/auth.js";
 dotenv.config();
 export const userSocketIds = new Map();
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {});
+const io = new Server(server, { cors: corsOptions });
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:4173",
-      process.env.CLIENT_URL,
-    ],
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 3000;
@@ -47,19 +40,21 @@ app.get("/", (req, res) => {
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/chats", chatRoute);
 app.use("/api/v1/admin", adminRoute);
-io.use((socket, next) => {});
+io.use((socket, next) => {
+  cookieParser()(
+    socket.request,
+    socket.request.res,
+    async (err) => await socketAuthenticator(err, socket, next)
+  );
+});
 io.on("connection", (socket) => {
-  const user = {
-    _id: "abdull",
-    name: "abdullah",
-  };
+  const user = socket.user;
   userSocketIds.set(user._id.toString(), socket.id);
   console.log("userSocketIds:", userSocketIds);
   console.log("a user connected", socket.id);
 
   socket.on(NEW_MESSAGE, async (data) => {
-    const parsedData = JSON.parse(data);
-    const { chatId, members, message } = parsedData;
+    const { chatId, members, message } = data;
     const messageForRealTime = {
       content: message,
       _id: uuid(),
@@ -76,6 +71,7 @@ io.on("connection", (socket) => {
       chat: chatId,
       sender: user._id,
     };
+    console.log("Emitting Real Message:",messageForRealTime)
     const membersSockets = getSockets(members);
     io.to(membersSockets).emit(NEW_MESSAGE, {
       chatId,
