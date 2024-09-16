@@ -44,7 +44,8 @@ const Login = () => {
         config
       );
       dispatch(userExist(true));
-      toast.success(data.message);
+
+      toast.success(data.data.message);
     } catch (err) {
       toast.error(err?.response?.data?.message || "Something went wrong");
     }
@@ -73,7 +74,7 @@ const Login = () => {
         }, config);
       dispatch(userExist(true));
     } catch (err) {
-      console.log(err)
+      console.log(err);
       toast.error(err?.response?.data?.message || "Something went wrong");
     }
   };

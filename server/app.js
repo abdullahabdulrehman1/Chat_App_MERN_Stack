@@ -1,10 +1,15 @@
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import express from "express";
-import { createServer } from "http";
+import { createServer, get } from "http";
 import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/event.js";
+import {
+  NEW_MESSAGE,
+  NEW_MESSAGE_ALERT,
+  STARTTYPING,
+  STOPTYPING,
+} from "./constants/event.js";
 import { getSockets } from "./libs/helper.js";
 import { errorMiddleware } from "./middlewares/error.js";
 import adminRoute from "./routes/admin.js";
@@ -21,6 +26,7 @@ export const userSocketIds = new Map();
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: corsOptions });
+app.set("io", io);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
@@ -71,7 +77,7 @@ io.on("connection", (socket) => {
       chat: chatId,
       sender: user._id,
     };
-    console.log("Emitting Real Message:",messageForRealTime)
+    console.log("Emitting Real Message:", messageForRealTime);
     const membersSockets = getSockets(members);
     io.to(membersSockets).emit(NEW_MESSAGE, {
       chatId,
@@ -83,6 +89,17 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.log(error);
     }
+  });
+
+  socket.on(STARTTYPING, ({ members, chatId }) => {
+    const membersSockets = getSockets(members);
+    socket.to(membersSockets).emit(STARTTYPING, { chatId });
+     
+  });
+  socket.on(STOPTYPING, ({ members, chatId }) => {
+    const membersSockets = getSockets(members);
+    socket.to(membersSockets).emit(STOPTYPING, { chatId });
+
   });
 
   socket.on("disconnect", () => {

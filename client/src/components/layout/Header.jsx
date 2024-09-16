@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import {
   AppBar,
   Backdrop,
+  Badge,
   IconButton,
   Toolbar,
   Tooltip,
@@ -23,25 +24,32 @@ import { useDispatch, useSelector } from "react-redux";
 import { userNotExist } from "../../redux/reducer/auth,js";
 import {
   setIsMobileMenu,
+  setIsNewGroup,
   setIsNotification,
   setIsSearch,
 } from "../../redux/reducer/misc";
+import { decrementNotificationCount } from "../../redux/reducer/chat";
 const Search = lazy(() => import("./../specific/Search"));
 const Notifications = lazy(() => import("./../specific/Notifications"));
 const NewGroup = lazy(() => import("./../specific/NewGroup"));
 
 const Header = () => {
-  const [isNewGroup, setIsNewGroup] = useState(false);
+  // const [isNewGroup, setIsNewGroup] = useState(false);
   const dispatch = useDispatch();
-  const { isSearch, isNotification } = useSelector((state) => state.misc);
+  const { isSearch, isNotification, isNewGroup } = useSelector(
+    (state) => state.misc
+  );
+  const { notificationCount } = useSelector((state) => state.chat);
   const navigate = useNavigate();
   const handleMobile = () => dispatch(setIsMobileMenu(true));
   const openSearchDialog = () => dispatch(setIsSearch(true));
   const openNewGroup = () => {
-    setIsNewGroup((prev) => !prev);
+    // setIsNewGroup((prev) => !prev);
+    dispatch(setIsNewGroup(true));
   };
   const openNotification = () => {
     dispatch(setIsNotification(true));
+    dispatch(decrementNotificationCount());
   };
   const NavigateToGroup = () => navigate("/groups");
   const LogoutHandler = () => {
@@ -101,6 +109,7 @@ const Header = () => {
                 title={"Notifications"}
                 Icon={<NotificationsIcon />}
                 onClick={openNotification}
+                value={notificationCount}
               />
 
               <IconBtn
@@ -130,11 +139,17 @@ const Header = () => {
     </>
   );
 };
-const IconBtn = ({ Icon, onClick, title }) => {
+const IconBtn = ({ Icon, onClick, title, value }) => {
   return (
     <Tooltip title={title}>
       <IconButton color="inherit" size="large" onClick={onClick}>
-        {Icon}
+        {value ? (
+          <Badge badgeContent={value} color={"error"}>
+            {Icon}
+          </Badge>
+        ) : (
+          Icon
+        )}
       </IconButton>
     </Tooltip>
   );

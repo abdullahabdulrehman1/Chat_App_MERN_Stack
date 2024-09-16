@@ -1,6 +1,7 @@
 import {
   ALERT,
   NEW_ATTACHEMENT,
+  NEW_MESSAGE,
   NEW_MESSAGE_ALERT,
   REFETCH,
   REFETCH_CHAT,
@@ -281,7 +282,7 @@ export const sendAttachments = TryCatch(async (req, res, next) => {
   const message = await Message.create(messageForRealtime);
   emitEvent(
     req,
-    NEW_ATTACHEMENT,
+    NEW_MESSAGE,
     chat.members,
     { message: messageForRealtime, chatId },
     chat

@@ -78,7 +78,6 @@ const FileMenu = ({ anchoE1, chatId }) => {
           </MenuItem>
           <MenuItem
             onClick={() => selectRef(audioRef)}
-            onChange={fileChangeHandler}
           >
             <Tooltip title={"Audio"}>
               <AudioFileIcon />
@@ -93,10 +92,7 @@ const FileMenu = ({ anchoE1, chatId }) => {
               ref={audioRef}
             />
           </MenuItem>
-          <MenuItem
-            onClick={() => selectRef(videoRef)}
-            onChange={fileChangeHandler}
-          >
+          <MenuItem onClick={() => selectRef(videoRef)}>
             <Tooltip title={"Video"}>
               <VideoFileIcon />
             </Tooltip>
@@ -110,10 +106,7 @@ const FileMenu = ({ anchoE1, chatId }) => {
               ref={videoRef}
             />
           </MenuItem>
-          <MenuItem
-            onClick={() => selectRef(fileRef)}
-            onChange={fileChangeHandler}
-          >
+          <MenuItem onClick={() => selectRef(fileRef)}>
             <Tooltip title={"File"}>
               <UploadFileIcon />
             </Tooltip>

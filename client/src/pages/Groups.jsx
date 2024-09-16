@@ -29,6 +29,9 @@ import AvatarCard from "../components/shared/AvatarCard";
 import { sampleChats, sampleUsers } from "../components/constants/sampleData";
 import UserItem from "../components/shared/UserItem";
 import Header from "../components/layout/Header";
+import { useMyGroupsQuery } from "../redux/api/api";
+import { useErrors } from "../hooks/hooks";
+import { LayoutLoaders } from "../components/layout/Loaders";
 const ConfirmDeleteDialog = lazy(() =>
   import("../components/dialogs/ConfirmDeleteDialog")
 );
@@ -43,13 +46,20 @@ const Groups = () => {
   const matches = useMediaQuery(theme.breakpoints.up("sm"));
 
   const navigate = useNavigate();
+  const myGroups = useMyGroupsQuery();
   const isAddMember = false;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [groupNameUpdated, setGroupNameUpdated] = useState("");
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
-
+  const errors = [
+    {
+      isError: myGroups.isError,
+      error: myGroups.error,
+    },
+  ];
+  useErrors(errors);
   const navigateBack = () => {
     navigate("/");
   };
@@ -198,7 +208,9 @@ const Groups = () => {
       </Button>
     </Stack>
   );
-  return (
+  return myGroups.isLoading ? (
+    <LayoutLoaders />
+  ) : (
     <Grid container height={"100vh"}>
       <Grid
         item

@@ -3,8 +3,8 @@ import { Avatar, IconButton, ListItem, Stack, Typography } from "@mui/material";
 import { color } from "chart.js/helpers";
 import React, { memo } from "react";
 
-const UserItem = ({ user,handler, handlerIsLoading,styling}) => {
-  const { name, _id, avatar,isAdded } = user;
+const UserItem = ({ user,handler, handlerIsLoading,isAdded,styling}) => {
+  const { name, _id, avatar } = user;
   return (
     <ListItem>
       <Stack

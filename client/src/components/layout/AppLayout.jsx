@@ -1,9 +1,9 @@
 import { KeyboardBackspace } from "@mui/icons-material";
 import { Drawer, Grid, IconButton, Skeleton, Tooltip } from "@mui/material";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { useErrors } from "../../hooks/hooks";
+import { useErrors, useSocketEvents } from "../../hooks/hooks";
 import { useMyChatsQuery } from "../../redux/api/api";
 import { setIsMobileMenu } from "../../redux/reducer/misc";
 import { matBlack } from "../constants/color";
@@ -12,11 +12,25 @@ import ChatList from "../specific/Chatlist";
 import Profile from "../specific/Profile";
 import Header from "./Header";
 import { getSocket } from "../../../socket";
+import { NEW_MESSAGE_ALERT, NEW_REQUEST } from "../constants/event";
+import {
+  incrementNotificationCount,
+  setNewMessagesAlert,
+} from "../../redux/reducer/chat";
+import { getOrSaveFromLocalStorage } from "../../lib/features";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
-    const params = useParams();
+    const socket = getSocket();
     const dispatch = useDispatch();
+    const { newMessagesAlert } = useSelector((state) => state.chat);
+
+    // console.log(newMessagesAlert);
+    const newRequestHandler = useCallback(() => {
+      dispatch(incrementNotificationCount());
+    }, [dispatch]);
+    const params = useParams();
+
     const chatId = params.chatId;
     const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
 
@@ -25,8 +39,29 @@ const AppLayout = () => (WrappedComponent) => {
     useErrors([{ isError, error }]);
     const handleMobileClose = () => dispatch(setIsMobileMenu(false));
     const handleDeleteChat = (e, _id, groupChat) => {};
-    const socket = getSocket();
-    console.log(socket.id);
+    useEffect(() => {
+      getOrSaveFromLocalStorage({
+        key: NEW_MESSAGE_ALERT,
+        value: newMessagesAlert,
+      });
+        
+    }, [newMessagesAlert]);
+    console.log(getOrSaveFromLocalStorage({ key: NEW_MESSAGE_ALERT, get: true }));
+    const newMessagesAlertHandler = useCallback(
+      (data) => {
+        if (data.chatId === chatId) {
+          return;
+        } else {
+          dispatch(setNewMessagesAlert(data));
+        }
+      },
+      [chatId]
+    );
+    const socketEventHandler = {
+      [NEW_MESSAGE_ALERT]: newMessagesAlertHandler,
+      [NEW_REQUEST]: newRequestHandler,
+    };
+    useSocketEvents(socket, socketEventHandler);
     return (
       <>
         <Title />
@@ -57,7 +92,7 @@ const AppLayout = () => (WrappedComponent) => {
               <ChatList
                 w={"70vw"}
                 chats={data?.chats}
-                newMessegesAlert={[{ chatId, count: 5 }]}
+                newMessegesAlert={newMessagesAlert}
                 onlineUsers={["1", "2"]}
                 chatId={chatId}
               />
@@ -85,10 +120,9 @@ const AppLayout = () => (WrappedComponent) => {
             ) : (
               <ChatList
                 chats={data?.chats}
-                newMessegesAlert={[{ chatId, count: 5 }]}
+                newMessegesAlert={newMessagesAlert}
                 onlineUsers={["1", "2"]}
                 chatId={chatId}
-               
               />
             )}
           </Grid>
@@ -102,7 +136,7 @@ const AppLayout = () => (WrappedComponent) => {
             }}
             height={"100%"}
           >
-            <WrappedComponent  user = {user} chatId={chatId} {...props} />{" "}
+            <WrappedComponent user={user} chatId={chatId} {...props} />{" "}
           </Grid>
           <Grid
             item

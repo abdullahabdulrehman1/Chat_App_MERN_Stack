@@ -222,6 +222,7 @@ export const getAllFriends = TryCatch(async (req, res) => {
     }
 
     const availableFriends = allFriends.filter(
+      
       (friend) => !chat.members.includes(friend._id)
     );
 
