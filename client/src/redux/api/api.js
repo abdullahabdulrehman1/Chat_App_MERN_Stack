@@ -68,12 +68,21 @@ const api = createApi({
       }),
       providesTags: ["Message"],
     }),
+    sendAttachments: builder.mutation({
+      query: (data) => ({
+        url: `chats/message`,
+        method: "POST",
+        credentials: "include",
+        body: data,
+      }),
+    }),
   }),
 });
 
 export default api;
 export const {
   useMyChatsQuery,
+  useSendAttachmentsMutation,
   useGetMessagesQuery,
   useChatsDetailsQuery,
   useLazySearchUserQuery,

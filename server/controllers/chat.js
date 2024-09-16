@@ -9,7 +9,11 @@ import { getOtherMembers } from "../libs/helper.js";
 import { TryCatch } from "../middlewares/error.js";
 import { Chat } from "../models/chat.js";
 import { User } from "../models/user.js";
-import { deleteFilesFromCloudinary, emitEvent } from "../utils/features.js";
+import {
+  deleteFilesFromCloudinary,
+  emitEvent,
+  uploadFilesToCloudinary,
+} from "../utils/features.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { Message } from "./../models/message.js";
 
@@ -261,7 +265,7 @@ export const sendAttachments = TryCatch(async (req, res, next) => {
   if (files.length < 1) {
     return next(new ErrorHandler("Please select at least one file", 400));
   }
-  const attachments = [];
+  const attachments = await uploadFilesToCloudinary(files);
   const messageForDB = {
     content: "",
     attachments,

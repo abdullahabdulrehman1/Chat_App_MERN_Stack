@@ -15,10 +15,12 @@ import { InputBox } from "../components/styles/StyledComponents";
 import { useErrors, useSocketEvents } from "../hooks/hooks";
 import { useChatsDetailsQuery, useGetMessagesQuery } from "../redux/api/api";
 import { useDispatch } from "react-redux";
+import { setIsFileMenu } from "../redux/reducer/misc";
 const Chats = ({ chatId, user }) => {
   const [message, setMessages] = useState("");
   const [messages, setMessagess] = useState([]);
   const [page, setPage] = useState(1);
+  const [fileMenuAnchorEl, setFileMenuAnchorE1] = useState(null);
 
   const containerRef = useRef(null);
   const socket = getSocket();
@@ -33,7 +35,7 @@ const Chats = ({ chatId, user }) => {
     setPage,
     oldMessagesChunk?.data?.message
   );
-  console.log(oldMessages);
+  // console.log(oldMessages);
   const members = chatDetails?.data?.chat?.members;
 
   const submitHandler = (e) => {
@@ -59,8 +61,10 @@ const Chats = ({ chatId, user }) => {
   useSocketEvents(socket, socketEventHandler);
   useErrors(errors);
   const allMessages = [...oldMessages, ...messages];
+
   const handleOnFileOpen = (e) => {
-    dispatch(setIsFileMenuOpen(true));
+    dispatch(setIsFileMenu(true));
+    setFileMenuAnchorE1(e.currentTarget);
     // socket.emit("file", { chatId });
   };
   return chatDetails.isLoading ? (
@@ -124,7 +128,7 @@ const Chats = ({ chatId, user }) => {
           </IconButton>
         </Stack>
       </form>
-      <FileMenu />
+      <FileMenu anchoE1={fileMenuAnchorEl} chatId={chatId} />
     </Fragment>
   );
 };
