@@ -20,7 +20,7 @@ import { Message } from "./../models/message.js";
 
 export const newGroupChat = TryCatch(async (req, res, next) => {
   const { name, members } = req.body;
-  if (members.length < 2) {
+  if (members.length < 3) {
     return next(new ErrorHandler("Please add at least one member", 400));
   }
 
@@ -32,7 +32,7 @@ export const newGroupChat = TryCatch(async (req, res, next) => {
     members: allMembers,
   });
 
-  emitEvent(req, ALERT, allMembers, `Welcome to ${name} Group`, chat);
+  emitEvent(req,ALERT, allMembers, `Welcome to ${name} Group`, chat);
   emitEvent(req, REFETCH, members);
   return res.status(201).json({
     success: true,
@@ -198,7 +198,7 @@ export const removeMembers = TryCatch(async (req, res, next) => {
     `${allUsersName} has been removed from ${chat.name} group`,
     chat
   );
-  emitEvent(req, REFETCH, membersToRemove);
+  emitEvent(req, REFETCH_CHAT, allMembers);
   return res.status(200).json({
     success: true,
     message: "Members removed successfully",
@@ -339,16 +339,16 @@ export const renameGroup = TryCatch(async (req, res, next) => {
   });
 });
 export const deleteChat = TryCatch(async (req, res, next) => {
-  const chatId = req.pararms.id;
-  const chat = await chat.findById(chatId);
+  const chatId = req.params.id; // Corrected typo here
+  const chat = await Chat.findById(chatId);
   if (!chat) return next(new ErrorHandler("Chat Not Found", 404));
   const members = chat.members;
   if (chat.groupChat && chat.creator.toString() !== req.user)
     return next(new ErrorHandler("You are not Allowed", 404));
   if (!chat.groupChat && !chat.members.includes(req.user.toString()))
     return next(new ErrorHandler("You are not a member of this Group", 404));
-  //
-  //delete all messegas as well as attachemnts or files on cloudinar
+
+  // Delete all messages as well as attachments or files on Cloudinary
   const messagesWithAttachments = await Message.find({
     chat: chatId,
     attachments: { $exists: true, $ne: [] },
@@ -359,13 +359,14 @@ export const deleteChat = TryCatch(async (req, res, next) => {
       public_ids.push(public_id);
     });
   });
-  await Promise.all([
-    //dleetefiles from cloudinary
 
+  await Promise.all([
+    // Delete files from Cloudinary
     deleteFilesFromCloudinary(public_ids),
     chat.deleteOne(),
     Message.deleteMany({ chat: chatId }),
   ]);
+
   emitEvent(req, REFETCH_CHAT, members);
   return res.status(200).json({
     success: true,
@@ -377,6 +378,10 @@ export const getMessage = TryCatch(async (req, res, next) => {
   const { page = 1 } = req.query;
   const limit = 20;
   const skip = (page - 1) * limit;
+  const chat = await Chat.findById(chatId);
+  if (!chat) return next(new ErrorHandler("Chat Not Found", 404));
+  if (!chat.members.includes(req.user.toString()))
+    return next(new ErrorHandler("You are not a member of this chat", 404));
   const [messages, totalMessagesCount] = await Promise.all([
     Message.find({ chat: chatId })
       .sort({ createdAt: -1 })

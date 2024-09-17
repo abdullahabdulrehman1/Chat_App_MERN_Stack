@@ -1,64 +1,95 @@
-import { Button, Dialog, DialogTitle, Stack, Typography } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import React, { useState } from "react";
 import { sampleUsers } from "../constants/sampleData";
 import UserItem from "../shared/UserItem";
-const AddMemberDialog = ({ addMember, isLoadingAddMember, chatId }) => {
-  const [members, setMembers] = useState(sampleUsers);
+import {
+  useAddGroupMemberMutation,
+  useAvailableFriendsQuery,
+} from "../../redux/api/api";
+import { useAsyncMutation, useErrors } from "../../hooks/hooks";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsAddMember } from "../../redux/reducer/misc";
+const AddMemberDialog = ({ chatId }) => {
   const [open, setOpen] = useState(true);
 
+  const dispatch = useDispatch();
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [addMember, isLoadingAddMember] = useAsyncMutation(
+    useAddGroupMemberMutation
+  );
+  const { isAddMember } = useSelector((state) => state.misc);
+  const { isLoading, data, error, isError } = useAvailableFriendsQuery(chatId);
+  const errors = [
+    {
+      isError,
+      error,
+    },
+  ];
   const selectMemberHandler = (_id) => {
-    setMembers((prev) =>
-      prev.map((user) =>
-        user._id === _id ? { ...user, isAdded: !user.isAdded } : user
-      )
-    );
     setSelectedMembers((prev) =>
       prev.includes(_id) ? prev.filter((i) => i !== _id) : [...prev, _id]
     );
   };
 
   const addMemberSubmitHandler = () => {
+    addMember("Adding Members...", { chatId, members: selectedMembers });
     closeHandler();
   };
   const closeHandler = () => {
-    setSelectedMembers([]);
-    setMembers([]);
+    dispatch(setIsAddMember(false));
   };
+  useErrors(errors);
   return (
-    <Dialog open={open} onClose={closeHandler}>
-      <Stack p={"1rem"} width={"20rem"} spacing={"2rem"}>
-        <DialogTitle textAlign={"center"}>Add Member</DialogTitle>
-      </Stack>
-      <Stack spacing={"1rem"} p={"2rem"}>
-        {members.length > 0 ? (
-          members.map((user) => (
-            <UserItem
-              key={user._id}
-              user={user}
-              handler={selectMemberHandler}
-              isAdded={selectedMembers.includes(user._id)}
-            />
-          ))
-        ) : (
-          <Typography textAlign={"center"}>No Friends Found</Typography>
-        )}
-      </Stack>
-      <Stack
-        direction={"row"}
-        alignItems={"center"}
-        justifyContent={"space-evenly"}
-      >
-        <Button onClick={closeHandler} variant="text" color="error">
-          Cancel
-        </Button>
-        <Button
-          disabled={isLoadingAddMember}
-          onClick={addMemberSubmitHandler}
-          variant="contained"
+    <Dialog open={isAddMember} onClose={closeHandler}>
+      <Stack p={"1rem"} width={"30rem"} spacing={"2rem"}>
+        <DialogTitle textAlign={"center"}>Add Members</DialogTitle>
+
+        <Stack
+          p={"2rem"}
+          spacing={2}
+          sx={{
+            maxHeight: "300px",
+            overflowY: "auto",
+          }}
         >
-          Submit Changes
-        </Button>
+          {isLoading ? (
+            <Skeleton />
+          ) : data?.friends.length > 0 ? (
+            data?.friends.map((user) => (
+              <UserItem
+                key={user._id}
+                user={user}
+                handler={selectMemberHandler}
+                isAdded={selectedMembers.includes(user._id)}
+              />
+            ))
+          ) : (
+            <Typography textAlign={"center"}>No Friends Found</Typography>
+          )}
+        </Stack>
+        <Stack
+          direction={"row"}
+          alignItems={"center"}
+          justifyContent={"space-evenly"}
+        >
+          <Button onClick={closeHandler} variant="text" color="error">
+            Cancel
+          </Button>
+          <Button
+            disabled={isLoadingAddMember}
+            onClick={addMemberSubmitHandler}
+            variant="contained"
+          >
+            Submit Changes
+          </Button>
+        </Stack>
       </Stack>
     </Dialog>
   );

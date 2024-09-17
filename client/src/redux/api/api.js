@@ -106,12 +106,60 @@ const api = createApi({
       }),
       invalidatesTags: ["Chats"],
     }),
+    renameGroup: builder.mutation({
+      query: ({ chatId, name }) => ({
+        url: `chats/${chatId}`,
+        method: "PUT",
+        credentials: "include",
+        body: { name },
+      }),
+      invalidatesTags: ["Chats"],
+    }),
+    removeGroupMember: builder.mutation({
+      query: ({ chatId, members }) => ({
+        url: `chats/removemembers`,
+        method: "PUT",
+        credentials: "include",
+        body: { chatId, members },
+      }),
+      invalidatesTags: ["Chats"],
+    }),
+    addGroupMember: builder.mutation({
+      query: ({ chatId, members }) => ({
+        url: `chats/addmembers`,
+        method: "PUT",
+        credentials: "include",
+        body: { chatId, members },
+      }),
+      invalidatesTags: ["Chats"],
+    }),
+    deleteChat: builder.mutation({
+      query: ({ chatId }) => ({
+        url: `chats/${chatId}`,
+        method: "DELETE",
+        credentials: "include",
+      }),
+      invalidatesTags: ["Chats"],
+    }),
+    leaveGroup: builder.mutation({
+      query: ({ chatId }) => ({
+        url: `chats/leave/${chatId}`,
+        method: "DELETE",
+        credentials: "include",
+      }),
+      invalidatesTags: ["Chats"],
+    }),
   }),
 });
 
 export default api;
 export const {
   useMyChatsQuery,
+  useLeaveGroupMutation,
+  useDeleteChatMutation,
+  useRemoveGroupMemberMutation,
+  useAddGroupMemberMutation,
+  useRenameGroupMutation,
   useAvailableFriendsQuery,
   useMyGroupsQuery,
   useNewGroupMutation,

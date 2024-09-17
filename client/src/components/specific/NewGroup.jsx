@@ -30,7 +30,6 @@ const NewGroup = () => {
       error,
     },
   ];
-  console.log(data);
   useErrors(errors);
 
   const [selectedMembers, setSelectedMembers] = useState([]);
@@ -39,7 +38,6 @@ const NewGroup = () => {
       prev.includes(_id) ? prev.filter((i) => i !== _id) : [...prev, _id]
     );
   };
-  console.log(selectedMembers);
   const isLoadingSendFriendRequest = false;
   const groupName = useInputValidation("");
 
@@ -50,7 +48,6 @@ const NewGroup = () => {
     if (!groupName.value) return toast.error("Group name is required");
     if (selectedMembers.length < 1)
       return toast.error("Select at least one member");
-    console.log(groupName.value, selectedMembers);
     newGroup("Creating New Group...", {
       name: groupName.value,
       members: selectedMembers,
@@ -71,7 +68,13 @@ const NewGroup = () => {
         <Typography variant="body1" textAlign={"center"}>
           Members
         </Typography>
-        <Stack>
+        <Stack
+          spacing={2}
+          sx={{
+            maxHeight: "300px", 
+            overflowY: "auto", 
+          }}
+        >
           {isLoading ? (
             <Skeleton />
           ) : (
@@ -79,7 +82,7 @@ const NewGroup = () => {
             data?.friends?.map((user) => (
               <UserItem
                 user={user}
-                key={Math.random()}
+                key={user._id}
                 handler={selectMemberHandler}
                 handlerIsLoading={isLoadingSendFriendRequest}
                 isAdded={selectedMembers.includes(user._id)}

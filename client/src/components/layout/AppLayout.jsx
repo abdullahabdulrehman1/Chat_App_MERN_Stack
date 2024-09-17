@@ -1,52 +1,67 @@
 import { KeyboardBackspace } from "@mui/icons-material";
 import { Drawer, Grid, IconButton, Skeleton, Tooltip } from "@mui/material";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { useErrors, useSocketEvents } from "../../hooks/hooks";
-import { useMyChatsQuery } from "../../redux/api/api";
-import { setIsMobileMenu } from "../../redux/reducer/misc";
-import { matBlack } from "../constants/color";
-import Title from "../shared/Title";
-import ChatList from "../specific/Chatlist";
-import Profile from "../specific/Profile";
-import Header from "./Header";
+import { useNavigate, useParams } from "react-router-dom";
 import { getSocket } from "../../../socket";
-import { NEW_MESSAGE_ALERT, NEW_REQUEST } from "../constants/event";
+import { useErrors, useSocketEvents } from "../../hooks/hooks";
+import { getOrSaveFromLocalStorage } from "../../lib/features";
+import { useMyChatsQuery } from "../../redux/api/api";
 import {
   incrementNotificationCount,
   setNewMessagesAlert,
 } from "../../redux/reducer/chat";
-import { getOrSaveFromLocalStorage } from "../../lib/features";
+import { setIsDeleteMenu, setIsMobileMenu } from "../../redux/reducer/misc";
+import { matBlack } from "../constants/color";
+import {
+  NEW_MESSAGE_ALERT,
+  NEW_REQUEST,
+  REFETCH_CHAT,
+} from "../constants/event";
+import Title from "../shared/Title";
+import ChatList from "../specific/Chatlist";
+import Profile from "../specific/Profile";
+import Header from "./Header";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
     const socket = getSocket();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { newMessagesAlert } = useSelector((state) => state.chat);
+    const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
 
     // console.log(newMessagesAlert);
     const newRequestHandler = useCallback(() => {
       dispatch(incrementNotificationCount());
     }, [dispatch]);
+    const refetchHandler = useCallback(() => {
+      refetch();
+      navigate("/");
+    }, [refetch, navigate]);
     const params = useParams();
 
     const chatId = params.chatId;
-    const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
+    // const deleteMenuAnchor = useRef(null);
 
     const { isMobileMenu } = useSelector((state) => state.misc);
     const { user } = useSelector((state) => state.auth);
     useErrors([{ isError, error }]);
     const handleMobileClose = () => dispatch(setIsMobileMenu(false));
-    const handleDeleteChat = (e, _id, groupChat) => {};
+    const handleDeleteChat = (e, chatId, isGroupChat) => {
+      e.preventDefault();
+      dispatch(setIsDeleteMenu(true));
+
+      console.log(
+        `Deleting chat with ID: ${chatId}, isGroupChat: ${isGroupChat}`
+      );
+    };
     useEffect(() => {
       getOrSaveFromLocalStorage({
         key: NEW_MESSAGE_ALERT,
         value: newMessagesAlert,
       });
-        
     }, [newMessagesAlert]);
-    console.log(getOrSaveFromLocalStorage({ key: NEW_MESSAGE_ALERT, get: true }));
     const newMessagesAlertHandler = useCallback(
       (data) => {
         if (data.chatId === chatId) {
@@ -60,12 +75,18 @@ const AppLayout = () => (WrappedComponent) => {
     const socketEventHandler = {
       [NEW_MESSAGE_ALERT]: newMessagesAlertHandler,
       [NEW_REQUEST]: newRequestHandler,
+      [REFETCH_CHAT]: refetchHandler,
     };
     useSocketEvents(socket, socketEventHandler);
+    // console.log(deleteMenuAnchor.current);
     return (
       <>
         <Title />
         <Header />
+        {/* <DeleteChatMenu
+          dispatch={dispatch}
+          deleteOptionAnchor={deleteMenuAnchor}
+        /> */}
         {isLoading ? (
           <Skeleton />
         ) : (
@@ -94,7 +115,9 @@ const AppLayout = () => (WrappedComponent) => {
                 chats={data?.chats}
                 newMessegesAlert={newMessagesAlert}
                 onlineUsers={["1", "2"]}
+                // handleDeleteChat={handleDeleteChat}
                 chatId={chatId}
+                // deleteMenuAnchor={deleteMenuAnchor}
               />
             </div>
           </Drawer>

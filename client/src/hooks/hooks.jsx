@@ -8,7 +8,11 @@ export const useErrors = (errors = []) => {
         if (fallback) {
           fallback();
         } else {
-          toast.error(error?.response?.data?.message || "Something went wrong");
+          toast.error(
+            error?.response?.data?.message ||
+              error?.response?.data?.error ||
+              "Something went wrong"
+          );
         }
       }
     });
@@ -31,10 +35,10 @@ export const useAsyncMutation = (mutationHook) => {
         setData(res.data);
       } else {
         toast.error(res?.error?.data?.error || "Something went wrong");
-        // console.log(res.error.data.error);
       }
     } catch (error) {
       console.log(error);
+      console.log("hellow world");
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
@@ -44,16 +48,15 @@ export const useAsyncMutation = (mutationHook) => {
   return [executeMutation, isLoading, data];
 };
 
-export const useSocketEvents= (socket,handlers)=>{
-  useEffect(()=>{
-    Object.entries(handlers).forEach(([event,handler])=>{
-      socket.on(event,handler)
-    }
-    )
-    return ()=>{
-      Object.entries(handlers).forEach(([event,handler])=>{
-        socket.off(event,handler)
-      })
-    }
-  })
-}
+export const useSocketEvents = (socket, handlers) => {
+  useEffect(() => {
+    Object.entries(handlers).forEach(([event, handler]) => {
+      socket.on(event, handler);
+    });
+    return () => {
+      Object.entries(handlers).forEach(([event, handler]) => {
+        socket.off(event, handler);
+      });
+    };
+  });
+};

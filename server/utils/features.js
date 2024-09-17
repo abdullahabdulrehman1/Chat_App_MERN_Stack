@@ -21,7 +21,7 @@ const connectDB = (uri) => {
 };
 export const sendToken = (res, code, user, message) => {
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "1d",
   });
   return res.status(code).cookie("chatAppSocket", token, cookieOption).json({
     success: true,

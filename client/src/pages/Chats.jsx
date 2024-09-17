@@ -29,6 +29,7 @@ import { useDispatch } from "react-redux";
 import { setIsFileMenu } from "../redux/reducer/misc";
 import { removeNewMessagesAlert } from "../redux/reducer/chat";
 import { TypingLoaders } from "../components/layout/Loaders";
+import { useNavigate } from "react-router-dom";
 const Chats = ({ chatId, user }) => {
   const [message, setMessages] = useState("");
   const [messages, setMessagess] = useState([]);
@@ -45,7 +46,7 @@ const Chats = ({ chatId, user }) => {
   const dispatch = useDispatch();
   const chatDetails = useChatsDetailsQuery({ chatId, skip: !chatId });
   const oldMessagesChunk = useGetMessagesQuery({ chatId, page: page });
-
+  const navigate = useNavigate();
   const { data: oldMessages, setData: setOldMessages } = useInfiniteScrollTop(
     containerRef,
     oldMessagesChunk?.data?.totalPages,
@@ -92,6 +93,11 @@ const Chats = ({ chatId, user }) => {
       bottomRef?.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+  useEffect(() => {
+    if (!chatDetails.data?.chat) {
+      navigate("/");
+    }
+  }, [chatDetails.data?.chat]);
   const newMessagesHandler = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
