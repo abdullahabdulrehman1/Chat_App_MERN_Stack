@@ -22,6 +22,7 @@ import { usernameValidation } from "../utils/validators";
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const toggleLogin = () => setIsLogin((prev) => !prev);
+  const [isLoading, setIsLoading] = useState(false);
   const name = useInputValidation("", usernameValidation);
   const password = useStrongPassword();
   const username = useInputValidation("", usernameValidation);
@@ -30,6 +31,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const handleLogin = async (e) => {
     e.preventDefault();
+
     console.log("login", username.value, password.value);
     const config = {
       withCredentials: true,
@@ -38,20 +40,26 @@ const Login = () => {
       },
     };
     try {
+      setIsLoading(true);
+      const toastId = toast.loading("Logging in...");
       const data = await axios.post(
         `${server}/api/v1/users/login`,
         { username: username.value, password: password.value },
         config
       );
-      dispatch(userExist(true));
-
-      toast.success(data.data.message);
+      dispatch(userExist(data.data.user));
+      toast.success(data.data.message, { id: toastId });
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Something went wrong");
+      toast.error(err?.response?.data?.message || "Something went wrong", {
+        id: toastId,
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
+
     const formData = new FormData();
     formData.append("name", name.value);
     formData.append("avatar", avatar.file);
@@ -65,17 +73,23 @@ const Login = () => {
       withCredentials: true,
     };
     try {
-      const { data } = axios
-        .post(`${server}/api/v1/users/newUser`, formData)
+      setIsLoading(true);
+      const toastId = toast.loading("Creating an account...");
+      const { data } = await axios
+        .post(`${server}/api/v1/users/newUser`, formData, config)
         .then((res) => {
           console.log(res);
-          toast.success(res.data.message);
+          toast.success(res.data.message, { id: toastId });
           toggleLogin();
-        }, config);
-      dispatch(userExist(true));
+        });
+      dispatch(userExist(data.data.user));
     } catch (err) {
-      console.log(err);
-      toast.error(err?.response?.data?.message || "Something went wrong");
+      // console.log(err);
+      toast.error(err?.response?.data?.message || "Something went wrong", {
+        id: toastId,
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -143,6 +157,7 @@ const Login = () => {
                   color="primary"
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   Login
                 </Button>
@@ -152,6 +167,7 @@ const Login = () => {
                   fullWidth
                   // fullWidth
                   // color="primary"
+                  disabled={isLoading}
                   onClick={toggleLogin}
                 >
                   Sign Up Instead
@@ -277,6 +293,7 @@ const Login = () => {
                   color="primary"
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   SIGN UP
                 </Button>
@@ -285,6 +302,7 @@ const Login = () => {
                   variant="text"
                   fullWidth
                   // color="primary"
+                  disabled={isLoading}
                   onClick={toggleLogin}
                 >
                   Sign In Instead

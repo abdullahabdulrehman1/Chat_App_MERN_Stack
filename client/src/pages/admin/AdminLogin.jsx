@@ -3,22 +3,33 @@ import {
   Button,
   Container,
   Paper,
+  Skeleton,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { bgGradiant } from "../../components/constants/color";
+import { useDispatch, useSelector } from "react-redux";
+import { adminLogin, getAdmin } from "../../redux/thunks/admin";
+import axios from "axios";
+import { server } from "../../components/constants/config";
+import toast from "react-hot-toast";
 
 const AdminLogin = () => {
   const secretKey = useInputValidation("");
-  const isAdmin = true;
-  const submitHandler = (e) => {
+  const { isAdmin } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const submitHandler = async (e) => {
     e.preventDefault();
-    console.log("submit");
+    dispatch(adminLogin(secretKey.value));
   };
-  if(isAdmin){
-    return <Navigate to="/admin/dashboard"/>
+  useEffect(() => {
+    dispatch(getAdmin());
+  }, [dispatch]);
+
+  if (isAdmin) {
+    return <Navigate to="/admin/dashboard" />;
   }
   return (
     <div

@@ -25,6 +25,7 @@ export const sendToken = (res, code, user, message) => {
   });
   return res.status(code).cookie("chatAppSocket", token, cookieOption).json({
     success: true,
+    user,
     message,
   });
 };

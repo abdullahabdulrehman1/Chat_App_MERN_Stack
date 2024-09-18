@@ -3,6 +3,7 @@ import {
   Drawer,
   Grid,
   IconButton,
+  Skeleton,
   Stack,
   styled,
   Typography,
@@ -17,13 +18,16 @@ import {
 import { Navigate, useLocation } from "react-router-dom";
 import { adminTabs } from "../constants/route";
 import { Link } from "../styles/StyledComponents";
+import { useDispatch, useSelector } from "react-redux";
+import { adminLogout } from "../../redux/thunks/admin";
 
 const Sidebar = ({ w = "100vw" }) => {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { isAdmin } = useSelector((state) => state.auth);
   const logoutHandler = () => {
-    console.log("logout");
+    dispatch(adminLogout());
   };
-  const isAdmin = true;
   if (!isAdmin) {
     return <Navigate to="/admin" />;
   }

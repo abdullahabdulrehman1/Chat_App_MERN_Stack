@@ -1,6 +1,6 @@
 import { KeyboardBackspace } from "@mui/icons-material";
 import { Drawer, Grid, IconButton, Skeleton, Tooltip } from "@mui/material";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSocket } from "../../../socket";

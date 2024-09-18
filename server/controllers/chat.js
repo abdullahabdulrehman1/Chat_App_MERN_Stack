@@ -32,7 +32,7 @@ export const newGroupChat = TryCatch(async (req, res, next) => {
     members: allMembers,
   });
 
-  emitEvent(req,ALERT, allMembers, `Welcome to ${name} Group`, chat);
+  emitEvent(req, ALERT, allMembers, `Welcome to ${name} Group`, chat);
   emitEvent(req, REFETCH, members);
   return res.status(201).json({
     success: true,
@@ -195,7 +195,10 @@ export const removeMembers = TryCatch(async (req, res, next) => {
     req,
     ALERT,
     chat.members,
-    `${allUsersName} has been removed from ${chat.name} group`,
+    {
+      message: `${allUsersName} has been removed from ${chat.name} group`,
+      chatId,
+    },
     chat
   );
   emitEvent(req, REFETCH_CHAT, allMembers);
@@ -233,7 +236,13 @@ export const LeaveGroup = TryCatch(async (req, res, next) => {
 
   await chat.save();
   const user = await User.findById(req.user, "name");
-  emitEvent(req, ALERT, chat.members, `${user.name} has left the group`, chat);
+  emitEvent(
+    req,
+    ALERT,
+    chat.members,
+    { message: `${user.name} has left the group`,chatId:  id },
+    chat
+  );
   emitEvent(req, REFETCH, [req.user]);
   return res.status(200).json({
     success: true,

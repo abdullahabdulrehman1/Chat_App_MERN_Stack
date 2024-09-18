@@ -8,24 +8,25 @@ import jwt from "jsonwebtoken";
 
 export const adminLogin = TryCatch(async (req, res, next) => {
   const { secretKey } = req.body;
-  const adminSecretKey = process.env.ADMIN_SECRET_KEY;
-  const isMatch = secretKey === adminSecretKey || "helloworld";
-  if (!isMatch) {
-    return next(new ErrorHandler("unauthorized", 401));
-  }
 
-  const token = await jwt.sign(secretKey, process.env.JWT_SECRET);
-  res
+  const isMatched = secretKey === process.env.ADMIN_SECRET_KEY;
+
+  if (!isMatched) return next(new ErrorHandler("Invalid Admin Key", 401));
+
+  const token = jwt.sign(secretKey, process.env.JWT_SECRET);
+
+  return res
     .status(200)
     .cookie("chatAppSocketAdminToken", token, {
       ...cookieOption,
-      maxAge: 15 * 60 * 1000,
+      maxAge: 1000 * 60 * 15,
     })
     .json({
       success: true,
-      message: "Admin Successfully logged in",
+      message: "Authenticated Successfully, Welcome BOSS",
     });
 });
+
 export const adminLogout = TryCatch(async (req, res, next) => {
   res
     .status(200)
@@ -148,9 +149,8 @@ export const getDashboardStats = TryCatch(async (req, res, next) => {
 });
 export const getAdminData = TryCatch(async (req, res, next) => {
   return res.status(200).json({
-
     success: true,
-  
-    isAdmin: true
+
+    isAdmin: true,
   });
 });

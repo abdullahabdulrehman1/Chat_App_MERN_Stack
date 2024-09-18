@@ -94,10 +94,10 @@ const Chats = ({ chatId, user }) => {
     }
   }, [messages]);
   useEffect(() => {
-    if (!chatDetails.data?.chat) {
+    if (chatDetails.isError) {
       navigate("/");
     }
-  }, [chatDetails.data?.chat]);
+  }, [chatDetails.isError]);
   const newMessagesHandler = useCallback(
     (data) => {
       if (data.chatId !== chatId) return;
@@ -124,8 +124,9 @@ const Chats = ({ chatId, user }) => {
 
   const alertListener = useCallback(
     (data) => {
+      if (data.chat !== chatId) return;
       const messageForAlert = {
-        content: data,
+        content: data.message,
 
         chat: chatId,
         sender: {
