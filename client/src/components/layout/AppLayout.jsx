@@ -1,6 +1,6 @@
 import { KeyboardBackspace } from "@mui/icons-material";
 import { Drawer, Grid, IconButton, Skeleton, Tooltip } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSocket } from "../../../socket";
@@ -11,7 +11,11 @@ import {
   incrementNotificationCount,
   setNewMessagesAlert,
 } from "../../redux/reducer/chat";
-import { setIsDeleteMenu, setIsMobileMenu } from "../../redux/reducer/misc";
+import {
+  setIsDeleteMenu,
+  setIsMobileMenu,
+  setSelectedDeleteChat,
+} from "../../redux/reducer/misc";
 import { matBlack } from "../constants/color";
 import {
   NEW_MESSAGE_ALERT,
@@ -23,15 +27,18 @@ import Title from "../shared/Title";
 import ChatList from "../specific/Chatlist";
 import Profile from "../specific/Profile";
 import Header from "./Header";
+import { DeleteChatMenu } from "../dialogs/deleteChatMenu";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
     const socket = getSocket();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const deleteMenuAnchor = useRef(null);
     const { newMessagesAlert } = useSelector((state) => state.chat);
     const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
     const [onlineUsers, setOnlineUsers] = useState([]);
+    const [name,setName] = useState("");
     // console.log(newMessagesAlert);
     const newRequestHandler = useCallback(() => {
       dispatch(incrementNotificationCount());
@@ -55,14 +62,7 @@ const AppLayout = () => (WrappedComponent) => {
     const { user } = useSelector((state) => state.auth);
     useErrors([{ isError, error }]);
     const handleMobileClose = () => dispatch(setIsMobileMenu(false));
-    const handleDeleteChat = (e, chatId, isGroupChat) => {
-      e.preventDefault();
-      dispatch(setIsDeleteMenu(true));
 
-      console.log(
-        `Deleting chat with ID: ${chatId}, isGroupChat: ${isGroupChat}`
-      );
-    };
     useEffect(() => {
       getOrSaveFromLocalStorage({
         key: NEW_MESSAGE_ALERT,
@@ -79,6 +79,12 @@ const AppLayout = () => (WrappedComponent) => {
       },
       [chatId]
     );
+    const handleDeleteChat = (e, chatId,name, groupChat) => {
+      dispatch(setIsDeleteMenu(true));
+      setName(name);
+      dispatch(setSelectedDeleteChat({ chatId, groupChat }));
+      deleteMenuAnchor.current = e.currentTarget;
+    };
     const socketEventHandler = {
       [NEW_MESSAGE_ALERT]: newMessagesAlertHandler,
       [NEW_REQUEST]: newRequestHandler,
@@ -86,15 +92,16 @@ const AppLayout = () => (WrappedComponent) => {
       [ONLINE]: onlineUserListener,
     };
     useSocketEvents(socket, socketEventHandler);
-    // console.log(deleteMenuAnchor.current);
+
     return (
       <>
         <Title />
         <Header />
-        {/* <DeleteChatMenu
+        <DeleteChatMenu
           dispatch={dispatch}
-          deleteOptionAnchor={deleteMenuAnchor}
-        /> */}
+          name={name}
+          deleteMenuAnchor={deleteMenuAnchor}
+        />
         {isLoading ? (
           <Skeleton />
         ) : (
@@ -124,6 +131,7 @@ const AppLayout = () => (WrappedComponent) => {
                 newMessegesAlert={newMessagesAlert}
                 // handleDeleteChat={handleDeleteChat}
                 chatId={chatId}
+                handleDeleteChat={handleDeleteChat}
                 onlineUsers={onlineUsers}
                 // deleteMenuAnchor={deleteMenuAnchor}
               />
@@ -154,6 +162,7 @@ const AppLayout = () => (WrappedComponent) => {
                 newMessegesAlert={newMessagesAlert}
                 onlineUsers={onlineUsers}
                 chatId={chatId}
+                handleDeleteChat={handleDeleteChat}
               />
             )}
           </Grid>
@@ -163,7 +172,7 @@ const AppLayout = () => (WrappedComponent) => {
             md={5}
             sm={8}
             sx={{
-              display: { xs: "none", sm: "block" },
+              display: { xs: "block", sm: "block" },
             }}
             height={"100%"}
           >

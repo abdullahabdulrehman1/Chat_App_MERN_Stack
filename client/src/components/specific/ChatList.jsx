@@ -6,6 +6,7 @@ const ChatList = ({
   w = "100%",
   chats = [],
   chatId,
+  
   onlineUsers,
   newMessegesAlert = [{ chatId: "", count: 0 }],
   handleDeleteChat,
@@ -33,6 +34,7 @@ const ChatList = ({
             isOnline={isOnline}
             avatar={avatar}
             name={name}
+            groupChat={groupChat}
             _id={_id}
             key={_id}
             sameSender={chatId === _id}

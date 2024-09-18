@@ -12,12 +12,15 @@ const ChatItem = ({
   isOnline,
   newMessegeAlert,
   index = 0,
-  handleDeleteChatOpen,
+  handleDeleteChat,
 }) => {
   return (
     <Link
       to={`/chat/${_id}`}
-      onContextMenu={(e) => handleDeleteChat(e, _id, groupChat)}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        handleDeleteChat(e, { chatId: _id },name, groupChat);
+      }}
     >
       <motion.div
         initial={{ opacity: 0, y: -50 }}
