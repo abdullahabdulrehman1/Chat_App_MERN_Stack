@@ -105,7 +105,7 @@ const MessageManagement = () => {
     }
   }, [data]);
   return loading ? (
-    <Skeleton  height={"100vh"}/>
+    <Skeleton height={"100vh"} />
   ) : (
     <AdminLayout>
       <Table

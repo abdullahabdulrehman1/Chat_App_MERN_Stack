@@ -70,7 +70,7 @@ export const DeleteChatMenu = ({ dispatch, name, deleteMenuAnchor }) => {
           alignItems={"center"}
           justifyContent={"space-evenly"}
         >
-          <Button onClick={closeHandler} variant="outlined" >
+          <Button onClick={closeHandler} variant="outlined">
             Cancel
           </Button>
 
