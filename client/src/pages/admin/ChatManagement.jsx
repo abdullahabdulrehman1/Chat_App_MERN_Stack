@@ -1,12 +1,21 @@
-import { Avatar, Stack } from "@mui/material";
+import { Avatar, Skeleton, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { dashboardData } from "../../components/constants/sampleData";
 import AdminLayout from "../../components/layout/AdminLayout";
 import AvatarCard from "../../components/shared/AvatarCard";
 import Table from "../../components/shared/Table";
 import { transformImage } from "../../lib/features";
+import { useFetchData } from "6pp";
+import { server } from "../../components/constants/config";
+import { useErrors } from "../../hooks/hooks";
 
 const ChatManagement = () => {
+  const { loading, data, error } = useFetchData(
+    `${server}/api/v1/admin/allchats`,
+    "allChats"
+  );
+  useErrors([{ isError: error, error: error }]);
+  // console.log(data);
   const columns = [
     {
       field: "id",
@@ -44,8 +53,8 @@ const ChatManagement = () => {
       ),
     },
     {
-      field: "totalMesseges",
-      headerName: "Total Messeges",
+      field: "totalMessages",
+      headerName: "Total Messages",
       width: 230,
       headerClassName: "table-header",
     },
@@ -71,21 +80,25 @@ const ChatManagement = () => {
   ];
   const [rows, setRows] = useState([]);
   useEffect(() => {
-    setRows(
-      dashboardData().chats.map((i) => ({
-        ...i,
-        id: i._id,
-        name: i.name,
-        avatar: i.avatar.map((i) => transformImage(i, 50)),
-        members: i.members.map((i) => transformImage(i.avatar, 50)),
-        creator: {
-          name: i.creator.name,
-          avatar: transformImage(i.creator.avatar, 50),
-        },
-      }))
-    );
-  }, []);
-  return (
+    if (data) {
+      setRows(
+        data.transformChats.map((i) => ({
+          ...i,
+          id: i._id,
+          name: i.name,
+          avatar: i.avatar.map((i) => transformImage(i, 50)),
+          members: i.members.map((i) => transformImage(i.avatar, 50)),
+          creator: {
+            name: i.creator.name,
+            avatar: transformImage(i.creator.avatar, 50),
+          },
+        }))
+      );
+    }
+  }, [data]);
+  return loading ? (
+    <Skeleton  height={"100vh"}/>
+  ) : (
     <AdminLayout>
       <Table headings={"All Chats"} rows={rows} columns={columns} />
     </AdminLayout>

@@ -146,6 +146,12 @@ const Login = () => {
                   type="password"
                   margin="normal"
                   variant="outlined"
+                  inputProps={{
+                    autoComplete: "password",
+                    form: {
+                      autocomplete: "off",
+                    },
+                  }}
                   value={password.value}
                   onChange={password.changeHandler}
                 />

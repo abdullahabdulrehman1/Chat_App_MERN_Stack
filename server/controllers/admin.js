@@ -101,12 +101,12 @@ export const allMessages = TryCatch(async (req, res, next) => {
       return {
         _id,
         attachments,
-        chat: chat._id,
-        groupChat: chat.groupChat,
+        chat: chat?._id,
+        groupChat: chat?.groupChat,
         sender: {
-          _id: sender._id,
-          name: sender.name,
-          avatar: sender.avatar.url,
+          _id: sender?._id,
+          name: sender?.name,
+          avatar: sender?.avatar.url,
         },
         content,
         createdAt,

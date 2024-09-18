@@ -35,9 +35,11 @@ const Table = ({ rows, columns, headings, rowHeight = 52 }) => {
             style={{
               height: "80%",
             }}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 10 } },
+            }}
+            pageSizeOptions={[5, 10, 25]}
             sx={{
-              // position: "absolute",
-              // overflow: "auto",
               border: "none",
               ".table-header": { bgcolor: matBlack, color: "white" },
             }}

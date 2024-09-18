@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { server } from "../../components/constants/config";
-import toast from "react-hot-toast";
 
 export const adminLogin = createAsyncThunk(
   "admin/verify",

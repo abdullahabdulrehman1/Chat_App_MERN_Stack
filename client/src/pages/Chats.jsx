@@ -15,6 +15,8 @@ import { getSocket } from "../../socket";
 import { grayColor, orange } from "../components/constants/color";
 import {
   ALERT,
+  CHAT_JOINED,
+  CHAT_LEAVED,
   NEW_MESSAGE,
   STARTTYPING,
   STOPTYPING,
@@ -80,12 +82,15 @@ const Chats = ({ chatId, user }) => {
     setMessages("");
   };
   useEffect(() => {
+    socket.emit(CHAT_JOINED, { userId: user._id, members });
     dispatch(removeNewMessagesAlert(chatId));
+
     return () => {
       setMessagess("");
       setMessages("");
       setPage(1);
       setOldMessages([]);
+      socket.emit(CHAT_LEAVED, { userId: user._id, members });
     };
   }, [chatId]);
   useEffect(() => {

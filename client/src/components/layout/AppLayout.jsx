@@ -1,6 +1,6 @@
 import { KeyboardBackspace } from "@mui/icons-material";
 import { Drawer, Grid, IconButton, Skeleton, Tooltip } from "@mui/material";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getSocket } from "../../../socket";
@@ -16,6 +16,7 @@ import { matBlack } from "../constants/color";
 import {
   NEW_MESSAGE_ALERT,
   NEW_REQUEST,
+  ONLINE,
   REFETCH_CHAT,
 } from "../constants/event";
 import Title from "../shared/Title";
@@ -30,7 +31,7 @@ const AppLayout = () => (WrappedComponent) => {
     const navigate = useNavigate();
     const { newMessagesAlert } = useSelector((state) => state.chat);
     const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
-
+    const [onlineUsers, setOnlineUsers] = useState([]);
     // console.log(newMessagesAlert);
     const newRequestHandler = useCallback(() => {
       dispatch(incrementNotificationCount());
@@ -39,6 +40,12 @@ const AppLayout = () => (WrappedComponent) => {
       refetch();
       navigate("/");
     }, [refetch, navigate]);
+    const onlineUserListener = useCallback(
+      (data) => {
+        setOnlineUsers(data);
+      },
+      [refetch, navigate]
+    );
     const params = useParams();
 
     const chatId = params.chatId;
@@ -76,6 +83,7 @@ const AppLayout = () => (WrappedComponent) => {
       [NEW_MESSAGE_ALERT]: newMessagesAlertHandler,
       [NEW_REQUEST]: newRequestHandler,
       [REFETCH_CHAT]: refetchHandler,
+      [ONLINE]: onlineUserListener,
     };
     useSocketEvents(socket, socketEventHandler);
     // console.log(deleteMenuAnchor.current);
@@ -114,9 +122,9 @@ const AppLayout = () => (WrappedComponent) => {
                 w={"70vw"}
                 chats={data?.chats}
                 newMessegesAlert={newMessagesAlert}
-                onlineUsers={["1", "2"]}
                 // handleDeleteChat={handleDeleteChat}
                 chatId={chatId}
+                onlineUsers={onlineUsers}
                 // deleteMenuAnchor={deleteMenuAnchor}
               />
             </div>
@@ -144,7 +152,7 @@ const AppLayout = () => (WrappedComponent) => {
               <ChatList
                 chats={data?.chats}
                 newMessegesAlert={newMessagesAlert}
-                onlineUsers={["1", "2"]}
+                onlineUsers={onlineUsers}
                 chatId={chatId}
               />
             )}

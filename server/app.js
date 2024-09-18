@@ -5,8 +5,11 @@ import { createServer, get } from "http";
 import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
 import {
+  CHAT_JOINED,
+  CHAT_LEAVED,
   NEW_MESSAGE,
   NEW_MESSAGE_ALERT,
+  ONLINE,
   STARTTYPING,
   STOPTYPING,
 } from "./constants/event.js";
@@ -23,6 +26,7 @@ import { corsOptions } from "./constants/config.js";
 import { socketAuthenticator } from "./middlewares/auth.js";
 dotenv.config();
 export const userSocketIds = new Map();
+const onlineUsers = new Set();
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: corsOptions });
@@ -56,8 +60,6 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
   const user = socket.user;
   userSocketIds.set(user._id.toString(), socket.id);
-  console.log("userSocketIds:", userSocketIds);
-  console.log("a user connected", socket.id);
 
   socket.on(NEW_MESSAGE, async (data) => {
     const { chatId, members, message } = data;
@@ -71,13 +73,13 @@ io.on("connection", (socket) => {
       },
       createdAt: new Date().toISOString(),
     };
-    console.log("new Message", messageForRealTime);
+    // console.log("new Message", messageForRealTime);
     const messageForDB = {
       content: message,
       chat: chatId,
       sender: user._id,
     };
-    console.log("Emitting Real Message:", messageForRealTime);
+    // console.log("Emitting Real Message:", messageForRealTime);
     const membersSockets = getSockets(members);
     io.to(membersSockets).emit(NEW_MESSAGE, {
       chatId,
@@ -94,17 +96,25 @@ io.on("connection", (socket) => {
   socket.on(STARTTYPING, ({ members, chatId }) => {
     const membersSockets = getSockets(members);
     socket.to(membersSockets).emit(STARTTYPING, { chatId });
-     
   });
   socket.on(STOPTYPING, ({ members, chatId }) => {
     const membersSockets = getSockets(members);
     socket.to(membersSockets).emit(STOPTYPING, { chatId });
-
   });
+  socket.on(CHAT_JOINED, ({ userId, members }) => {
+    onlineUsers.add(userId.toString());
 
+    const membersSockets = getSockets(members);
+    io.to(membersSockets).emit(ONLINE, Array.from(onlineUsers));
+  });
+  socket.on(CHAT_LEAVED, ({ userId, members }) => {
+    onlineUsers.delete(userId.toString());
+    const membersSockets = getSockets(members);
+    io.to(membersSockets).emit(ONLINE, Array.from(onlineUsers));
+  });
   socket.on("disconnect", () => {
     userSocketIds.delete(user._id.toString());
-    console.log("user disconnected");
+    onlineUsers.delete(user._id.toString());
   });
 });
 app.use(errorMiddleware);

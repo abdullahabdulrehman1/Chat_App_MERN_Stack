@@ -1,4 +1,4 @@
-import { Avatar, Box, Stack } from "@mui/material";
+import { Avatar, Box, Skeleton, Stack } from "@mui/material";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { dashboardData } from "../../components/constants/sampleData";
@@ -6,8 +6,16 @@ import AdminLayout from "../../components/layout/AdminLayout";
 import RenderAttachments from "../../components/shared/RenderAttachments";
 import Table from "../../components/shared/Table";
 import { fileFormat, transformImage } from "../../lib/features";
+import { server } from "../../components/constants/config";
+import { useFetchData } from "6pp";
+import { useErrors } from "../../hooks/hooks";
 
 const MessageManagement = () => {
+  const { loading, data, error } = useFetchData(
+    `${server}/api/v1/admin/allmessages`,
+    "allMessages"
+  );
+  useErrors([{ isError: error, error: error }]);
   const columns = [
     {
       field: "id",
@@ -28,7 +36,7 @@ const MessageManagement = () => {
               const file = fileFormat(url);
 
               return (
-                <Box sx={{ m: "1rem"}}>
+                <Box sx={{ m: "1rem" }}>
                   <a
                     href={url}
                     download
@@ -82,19 +90,23 @@ const MessageManagement = () => {
   ];
   const [rows, setRows] = useState([]);
   useEffect(() => {
-    setRows(
-      dashboardData().messages.map((i) => ({
-        ...i,
-        id: i._id,
-        sender: {
-          name: i.sender.name,
-          createdAt: moment(i.createdAt).format("MMMM Do YYYY,h:mm:ss a"),
-          avatar: transformImage(i.sender.avatar, 50),
-        },
-      }))
-    );
-  }, []);
-  return (
+    if (data) {
+      setRows(
+        data?.messages.map((i) => ({
+          ...i,
+          id: i._id,
+          sender: {
+            name: i.sender.name,
+            createdAt: moment(i.createdAt).format("MMMM Do YYYY,h:mm:ss a"),
+            avatar: transformImage(i.sender.avatar, 50),
+          },
+        }))
+      );
+    }
+  }, [data]);
+  return loading ? (
+    <Skeleton  height={"100vh"}/>
+  ) : (
     <AdminLayout>
       <Table
         rowHeight={200}

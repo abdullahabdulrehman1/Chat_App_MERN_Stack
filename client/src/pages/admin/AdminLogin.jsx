@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { bgGradiant } from "../../components/constants/color";
 import { useDispatch, useSelector } from "react-redux";
 import { adminLogin, getAdmin } from "../../redux/thunks/admin";
@@ -18,8 +18,9 @@ import toast from "react-hot-toast";
 
 const AdminLogin = () => {
   const secretKey = useInputValidation("");
-  const { isAdmin } = useSelector((state) => state.auth);
+  const { isAdmin, error } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const submitHandler = async (e) => {
     e.preventDefault();
     dispatch(adminLogin(secretKey.value));
@@ -27,7 +28,11 @@ const AdminLogin = () => {
   useEffect(() => {
     dispatch(getAdmin());
   }, [dispatch]);
-
+  useEffect(() => {
+    if (error === "Unauthorized") {
+      navigate("/");
+    }
+  }, [error, navigate]);
   if (isAdmin) {
     return <Navigate to="/admin/dashboard" />;
   }

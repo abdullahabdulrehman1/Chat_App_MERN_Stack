@@ -240,7 +240,7 @@ export const LeaveGroup = TryCatch(async (req, res, next) => {
     req,
     ALERT,
     chat.members,
-    { message: `${user.name} has left the group`,chatId:  id },
+    { message: `${user.name} has left the group`, chatId: id },
     chat
   );
   emitEvent(req, REFETCH, [req.user]);
