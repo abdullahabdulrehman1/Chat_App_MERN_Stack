@@ -11,7 +11,10 @@ export const cookieOption = {
 
 const connectDB = (uri) => {
   mongoose
-    .connect(uri, { dbName: "chatAppSocket" })
+    .connect(uri, {
+      dbName: "chatAppSocket",
+      connectTimeoutMS: 30000,
+    })
     .then((data) => {
       console.log(`Connected to MongoDB: ${data.connection.host}`);
     })
