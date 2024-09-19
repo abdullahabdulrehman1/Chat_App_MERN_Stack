@@ -19,7 +19,7 @@ const ChatItem = ({
       to={`/chat/${_id}`}
       onContextMenu={(e) => {
         e.preventDefault();
-        handleDeleteChat(e, { chatId: _id },name, groupChat);
+        handleDeleteChat(e, { chatId: _id }, name, groupChat);
       }}
     >
       <motion.div
@@ -29,7 +29,6 @@ const ChatItem = ({
           boxShadow: "0 0 10px rgba(0,0,0,0.2)",
           display: "flex",
           alignItems: "center",
-          padding: "0",
           backgroundColor: sameSender ? "black" : "unset",
           color: sameSender ? "white" : "unset",
           position: "relative",
