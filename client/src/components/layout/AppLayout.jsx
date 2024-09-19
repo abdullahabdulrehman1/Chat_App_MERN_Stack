@@ -24,7 +24,7 @@ import {
   REFETCH_CHAT,
 } from "../constants/event";
 import Title from "../shared/Title";
-import ChatList from "../specific/Chatlist";
+import ChatList from "../specific/ChatList";
 import Profile from "../specific/Profile";
 import Header from "./Header";
 import { DeleteChatMenu } from "../dialogs/deleteChatMenu";
