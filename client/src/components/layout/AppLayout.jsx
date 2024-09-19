@@ -27,7 +27,7 @@ import Title from "../shared/Title";
 import ChatList from "../specific/ChatList";
 import Profile from "../specific/Profile";
 import Header from "./Header";
-import { DeleteChatMenu } from "../dialogs/deleteChatMenu";
+import { DeleteChatMenu } from "../dialogs/DeleteChatMenu";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -38,7 +38,7 @@ const AppLayout = () => (WrappedComponent) => {
     const { newMessagesAlert } = useSelector((state) => state.chat);
     const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
     const [onlineUsers, setOnlineUsers] = useState([]);
-    const [name,setName] = useState("");
+    const [name, setName] = useState("");
     // console.log(newMessagesAlert);
     const newRequestHandler = useCallback(() => {
       dispatch(incrementNotificationCount());
