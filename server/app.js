@@ -31,9 +31,9 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: corsOptions });
 app.set("io", io);
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors(corsOptions));
 
 app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 3000;
@@ -123,3 +123,4 @@ server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV}`);
   userRoute;
 });
+export default app;

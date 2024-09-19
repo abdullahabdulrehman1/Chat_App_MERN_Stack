@@ -7311,3 +7311,4 @@ server/node_modules/serve-static/node_modules/send/SECURITY.md
 client/.env
 client/package-lock.json
 client/package-lock.json
+.vercel
