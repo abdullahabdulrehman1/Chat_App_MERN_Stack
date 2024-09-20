@@ -23,11 +23,11 @@ import {
   ONLINE,
   REFETCH_CHAT,
 } from "../constants/event";
+import { DeleteChatMenu } from "../dialogs/DeleteChatMenu";
 import Title from "../shared/Title";
 import ChatList from "../specific/ChatList";
 import Profile from "../specific/Profile";
 import Header from "./Header";
-import { DeleteChatMenu } from "../dialogs/DeleteChatMenu";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {

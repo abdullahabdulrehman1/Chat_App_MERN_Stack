@@ -22,13 +22,22 @@ import connectDB from "./utils/features.js";
 import { Message } from "./models/message.js";
 import { v2 as cloudinary } from "cloudinary";
 import cors from "cors";
-import { corsOptions } from "./constants/config.js";
 import { socketAuthenticator } from "./middlewares/auth.js";
 dotenv.config();
 export const userSocketIds = new Map();
 const onlineUsers = new Set();
 const app = express();
 const server = createServer(app);
+const corsOptions = {
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "https://chatappsocketclient.vercel.app",
+
+    process.env.CLIENT_URL,
+  ],
+  credentials: true,
+};
 const io = new Server(server, { cors: corsOptions });
 app.set("io", io);
 app.use(cors(corsOptions));
