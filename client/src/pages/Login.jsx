@@ -133,7 +133,7 @@ const Login = () => {
                 <TextField
                   required
                   fullWidth
-                  label="Useranme"
+                  label="Username"
                   margin="normal"
                   variant="outlined"
                   value={username.value}
