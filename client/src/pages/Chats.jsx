@@ -32,6 +32,7 @@ import { setIsFileMenu } from "../redux/reducer/misc";
 import { removeNewMessagesAlert } from "../redux/reducer/chat";
 import { TypingLoaders } from "../components/layout/Loaders";
 import { useNavigate } from "react-router-dom";
+import ChatSkeleton from "../components/shared/ChatSkeleton";
 const Chats = ({ chatId, user }) => {
   const [message, setMessages] = useState("");
   const [messages, setMessagess] = useState([]);
@@ -164,10 +165,9 @@ const Chats = ({ chatId, user }) => {
   const handleOnFileOpen = (e) => {
     dispatch(setIsFileMenu(true));
     setFileMenuAnchorE1(e.currentTarget);
-    // socket.emit("file", { chatId });
   };
   return chatDetails.isLoading ? (
-    <Skeleton />
+    <ChatSkeleton/>
   ) : (
     <Fragment>
       <Stack

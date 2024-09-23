@@ -123,6 +123,7 @@ const Groups = () => {
       setIsEdit(false);
     };
   }, [chatId]);
+
   const confirmDeleteHandler = () => {
     setConfirmDeleteDialog(true);
     console.log("confirm delete");

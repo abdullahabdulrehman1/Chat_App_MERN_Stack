@@ -1,5 +1,18 @@
-import { KeyboardBackspace } from "@mui/icons-material";
-import { Drawer, Grid, IconButton, Skeleton, Tooltip } from "@mui/material";
+import {
+  AccountCircle,
+  Email,
+  KeyboardBackspace,
+  Phone,
+} from "@mui/icons-material";
+import {
+  Box,
+  Drawer,
+  Grid,
+  IconButton,
+  Skeleton,
+  Stack,
+  Tooltip,
+} from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,6 +41,9 @@ import Title from "../shared/Title";
 import ChatList from "../specific/ChatList";
 import Profile from "../specific/Profile";
 import Header from "./Header";
+import ProfileSkeleton from "../shared/ProfileSkeleton";
+import ChatSkeleton from "../shared/ChatSkeleton";
+import ChatListSkeleton from "../shared/ChatListSkeleton";
 
 const AppLayout = () => (WrappedComponent) => {
   return (props) => {
@@ -124,16 +140,14 @@ const AppLayout = () => (WrappedComponent) => {
                 <KeyboardBackspace />
               </IconButton>
             </Tooltip>
-            <div style={{ marginTop: "2.5rem" }}>
+            <div style={{ marginTop: "2.5rem" }} onClick={handleMobileClose}>
               <ChatList
                 w={"70vw"}
                 chats={data?.chats}
                 newMessegesAlert={newMessagesAlert}
-                // handleDeleteChat={handleDeleteChat}
                 chatId={chatId}
                 handleDeleteChat={handleDeleteChat}
                 onlineUsers={onlineUsers}
-                // deleteMenuAnchor={deleteMenuAnchor}
               />
             </div>
           </Drawer>
@@ -155,7 +169,7 @@ const AppLayout = () => (WrappedComponent) => {
             }}
           >
             {isLoading ? (
-              <Skeleton />
+             <ChatListSkeleton/>
             ) : (
               <ChatList
                 chats={data?.chats}
@@ -176,7 +190,11 @@ const AppLayout = () => (WrappedComponent) => {
             }}
             height={"100%"}
           >
-            <WrappedComponent user={user} chatId={chatId} {...props} />{" "}
+            {isLoading ? (
+              <ChatSkeleton />
+            ) : (
+              <WrappedComponent user={user} chatId={chatId} {...props} />
+            )}
           </Grid>
           <Grid
             item
@@ -190,7 +208,7 @@ const AppLayout = () => (WrappedComponent) => {
             }}
             height={"100%"}
           >
-            <Profile user={user} />
+            {isLoading ? <ProfileSkeleton /> : <Profile user={user} />}
           </Grid>
         </Grid>
       </>

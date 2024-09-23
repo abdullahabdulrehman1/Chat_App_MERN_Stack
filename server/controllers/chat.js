@@ -185,7 +185,15 @@ export const removeMembers = TryCatch(async (req, res, next) => {
       new ErrorHandler("Group chat must have at least two members", 400)
     );
   }
+  const isCreatorRemovingSelf = membersToRemove.includes(
+    chat.creator.toString()
+  );
+
   chat.members = membersToKeep;
+
+  if (isCreatorRemovingSelf) {
+    chat.creator = membersToKeep[0]; 
+  }
 
   await chat.save();
   const allUsers = await User.find({ _id: { $in: membersToRemove } }, "name");
