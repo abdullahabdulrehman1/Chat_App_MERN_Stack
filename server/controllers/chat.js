@@ -192,7 +192,7 @@ export const removeMembers = TryCatch(async (req, res, next) => {
   chat.members = membersToKeep;
 
   if (isCreatorRemovingSelf) {
-    chat.creator = membersToKeep[0]; 
+    chat.creator = membersToKeep[0];
   }
 
   await chat.save();
